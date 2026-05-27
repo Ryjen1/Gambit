@@ -106,7 +106,7 @@ Aomi hosts the Telegram bot. Contact the Aomi team to set up `@GambitBot` on Tel
 
 | Layer | Technology |
 |---|---|
-| Frontend | Next.js 15, React 19, TypeScript, Tailwind CSS |
+| Frontend | Next.js 15, React 19, TypeScript, CSS Variables |
 | AI Runtime | Aomi (hosted) — Claude Sonnet |
 | Plugin | Limitless Exchange SDK (Rust, aomi-sdk) |
 | Blockchain | Base (L2), USDC, CLOB Exchange |
