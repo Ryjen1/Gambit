@@ -1,12 +1,12 @@
-# LimitlessBot
+# Gambit
 
 **AI-powered prediction market assistant on Base. Bet on football, crypto, and politics by chatting.**
 
 Built for [OpenPandora Early Forge](https://t.me/openpandora) using [Aomi](https://aomi.dev) + [Limitless Exchange](https://limitless.exchange) on [Base](https://base.org).
 
-## What is LimitlessBot?
+## What is Gambit?
 
-LimitlessBot is a consumer-facing AI chat app that lets anyone trade prediction markets on Limitless Exchange through natural language. No orderbooks, no wallet popups, no crypto expertise required — just chat.
+Gambit is a consumer-facing AI chat app that lets anyone trade prediction markets on Limitless Exchange through natural language. No orderbooks, no wallet popups, no crypto expertise required — just chat.
 
 **Persona**: A casual football fan watching the FIFA World Cup who wants to bet on matches but finds crypto prediction markets intimidating.
 
@@ -68,8 +68,8 @@ The Limitless plugin in the Aomi SDK provides these tools:
 
 ```bash
 # 1. Clone
-git clone https://github.com/yourusername/limitlessbot.git
-cd limitlessbot
+git clone https://github.com/Ryjen1/Gambit.git
+cd Gambit
 
 # 2. Install
 npm install
@@ -93,14 +93,14 @@ npm run build
 
 ### Aomi App
 1. Go to [aomi.dev](https://aomi.dev)
-2. Create a new app with slug `limitlessbot`
+2. Create a new app with slug `gambit`
 3. Set the preamble from `PREAMBLE.md`
 4. Enable the `limitless` plugin
 5. Set model to Claude Sonnet
 6. Deploy — get your API key
 
 ### Telegram Bot
-Aomi hosts the Telegram bot. Contact the Aomi team to set up `@LimitlessBot` on Telegram with the same backend and tools.
+Aomi hosts the Telegram bot. Contact the Aomi team to set up `@GambitBot` on Telegram with the same backend and tools.
 
 ## Tech Stack
 
@@ -114,7 +114,7 @@ Aomi hosts the Telegram bot. Contact the Aomi team to set up `@LimitlessBot` on 
 
 ## Submission
 
-- **Twitter**: @LimitlessBot
+- **Twitter**: @GambitAI
 - **Demo Video**: [link]
 - **Live App**: [link]
 - **GitHub**: This repo

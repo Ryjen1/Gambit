@@ -10,9 +10,9 @@ export function Navbar() {
           width: 28, height: 28, borderRadius: "50%", background: "var(--seal-500)",
           display: "flex", alignItems: "center", justifyContent: "center",
         }}>
-          <span style={{ fontSize: 12, fontWeight: 700, color: "#fff" }}>L</span>
+          <span style={{ fontSize: 12, fontWeight: 700, color: "#fff" }}>G</span>
         </div>
-        <span className="eyebrow" style={{ letterSpacing: "0.15em" }}>LimitlessBot</span>
+        <span className="eyebrow" style={{ letterSpacing: "0.15em" }}>Gambit</span>
       </a>
 
       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>

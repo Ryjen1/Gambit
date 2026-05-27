@@ -140,10 +140,10 @@ export default function ChatPage() {
             width: 28, height: 28, borderRadius: "50%", background: "var(--seal-500)",
             display: "flex", alignItems: "center", justifyContent: "center",
           }}>
-            <span style={{ fontSize: 11, fontWeight: 700, color: "#fff" }}>L</span>
+            <span style={{ fontSize: 11, fontWeight: 700, color: "#fff" }}>G</span>
           </div>
           <div>
-            <div style={{ fontSize: 14, fontWeight: 600 }}>LimitlessBot</div>
+            <div style={{ fontSize: 14, fontWeight: 600 }}>Gambit</div>
             <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
               <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--evidence-400)" }} />
               <span style={{ fontSize: 11, color: "var(--evidence-400)" }}>Live Demo</span>
@@ -162,7 +162,7 @@ export default function ChatPage() {
             <div style={{ padding: "80px 0", textAlign: "center" }}>
               <p className="eyebrow" style={{ marginBottom: 24 }}>AI Prediction Markets</p>
               <h2 style={{ fontSize: 28, fontWeight: 500, letterSpacing: -1, marginBottom: 12 }}>
-                Welcome to LimitlessBot
+                Welcome to Gambit
               </h2>
               <p style={{ fontSize: 14, color: "var(--muted-foreground)", maxWidth: 400, margin: "0 auto 40px", lineHeight: 1.7 }}>
                 Ask about markets, get odds analysis, or place a bet &mdash; all by chatting.

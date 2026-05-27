@@ -66,7 +66,7 @@ export function DemoChat() {
               <span style={{ fontSize: 11, fontWeight: 700, color: "#fff" }}>L</span>
             </div>
             <div>
-              <div style={{ fontSize: 13, fontWeight: 600 }}>LimitlessBot</div>
+              <div style={{ fontSize: 13, fontWeight: 600 }}>Gambit</div>
               <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                 <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--evidence-400)" }} />
                 <span style={{ fontSize: 11, color: "var(--evidence-400)" }}>Online</span>

@@ -50,7 +50,7 @@ export function Features() {
           </h2>
           <p style={{ fontSize: 16, color: "var(--muted-foreground)", lineHeight: 1.7 }}>
             From World Cup matches to Bitcoin price targets &mdash; if it has an
-            outcome, you can bet on it through LimitlessBot.
+            outcome, you can bet on it through Gambit.
           </p>
         </div>
 

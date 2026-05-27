@@ -2,28 +2,28 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://limitlessbot.vercel.app"),
+  metadataBase: new URL("https://gambit.vercel.app"),
   title: {
-    default: "LimitlessBot — Bet on anything. Just ask.",
-    template: "%s · LimitlessBot",
+    default: "Gambit — Bet on anything. Just ask.",
+    template: "%s · Gambit",
   },
   description:
     "The first AI prediction market assistant on Base. Chat to discover markets, analyze odds, and place bets on Limitless — no crypto expertise required.",
-  applicationName: "LimitlessBot",
+  applicationName: "Gambit",
   keywords: [
-    "LimitlessBot", "Limitless", "Base", "prediction markets", "AI",
+    "Gambit", "Limitless", "Base", "prediction markets", "AI",
     "betting", "World Cup", "crypto", "Aomi", "agentic",
   ],
   openGraph: {
     type: "website",
-    title: "LimitlessBot — Bet on anything. Just ask.",
+    title: "Gambit — Bet on anything. Just ask.",
     description:
       "The first AI prediction market assistant on Base. Chat to discover markets, analyze odds, and place bets on Limitless.",
-    siteName: "LimitlessBot",
+    siteName: "Gambit",
   },
   twitter: {
     card: "summary_large_image",
-    title: "LimitlessBot — Bet on anything. Just ask.",
+    title: "Gambit — Bet on anything. Just ask.",
     description:
       "The first AI prediction market assistant on Base.",
   },

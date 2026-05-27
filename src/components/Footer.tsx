@@ -13,9 +13,9 @@ export function Footer() {
               width: 24, height: 24, borderRadius: "50%", background: "var(--seal-500)",
               display: "flex", alignItems: "center", justifyContent: "center",
             }}>
-              <span style={{ fontSize: 10, fontWeight: 700, color: "#fff" }}>L</span>
+              <span style={{ fontSize: 10, fontWeight: 700, color: "#fff" }}>G</span>
             </div>
-            <span className="eyebrow">LimitlessBot</span>
+            <span className="eyebrow">Gambit</span>
           </div>
 
           <div style={{ display: "flex", gap: 24 }}>

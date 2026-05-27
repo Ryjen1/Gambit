@@ -1,4 +1,4 @@
-# CLAUDE.md — LimitlessBot
+# CLAUDE.md — Gambit
 > Last updated: 2026-05-27
 
 ## 1. Project Identity
@@ -20,7 +20,7 @@
 ## 3. Project Structure
 
 ```
-limitlessbot/
+gambit/
 ├── src/
 │   ├── app/
 │   │   ├── layout.tsx          # Root layout with metadata, fonts
@@ -60,13 +60,13 @@ These tools exist in `aomi-sdk/apps/limitless/`. We do NOT implement them — we
 ## 5. Architecture Rules
 
 1. **No custom Rust plugin.** We use the existing `limitless` plugin from the Aomi SDK. Our value-add is the consumer UX, persona, and polish.
-2. **System prompt is the product.** The PREAMBLE.md defines the persona, safety rules, formatting, and workflow. This is what makes LimitlessBot feel different from raw Limitless.
+2. **System prompt is the product.** The PREAMBLE.md defines the persona, safety rules, formatting, and workflow. This is what makes Gambit feel different from raw Limitless.
 3. **Demo-first.** The chat page works without API keys — it uses pre-built responses to demonstrate the UX. The live version connects to Aomi.
 4. **No crypto jargon in user-facing strings.** "Bet" not "place order." "Odds" not "implied probability." "Your bets" not "open positions."
 
 ## 6. Competitive Advantage (vs FanForge)
 
-| Dimension | FanForge (Zora) | LimitlessBot (Limitless) |
+| Dimension | FanForge (Zora) | Gambit (Limitless) |
 |-----------|-----------------|--------------------------|
 | Protocol | Zora creator coins | Limitless prediction markets |
 | Persona | Nigerian musician | Football fan (World Cup) |
@@ -79,7 +79,7 @@ These tools exist in `aomi-sdk/apps/limitless/`. We do NOT implement them — we
 
 | Variable | Required | Notes |
 |----------|----------|-------|
-| `NEXT_PUBLIC_AOMI_APP_SLUG` | yes | Default: `limitlessbot` |
+| `NEXT_PUBLIC_AOMI_APP_SLUG` | yes | Default: `gambit` |
 | `NEXT_PUBLIC_AOMI_API_KEY` | yes | From aomi.dev dashboard |
 | `NEXT_PUBLIC_AOMI_API_URL` | no | Default: `https://api.aomi.dev` |
 
