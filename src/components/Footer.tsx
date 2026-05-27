@@ -1,37 +1,41 @@
 export function Footer() {
   return (
-    <footer style={{ padding: "64px 24px", borderTop: "1px solid var(--border)" }}>
-      <div style={{ maxWidth: 1280, margin: "0 auto" }}>
+    <footer style={{
+      padding: "64px 24px", borderTop: "1px solid var(--border)",
+    }}>
+      <div style={{ maxWidth: 1024, margin: "0 auto" }}>
         <div style={{
-          display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: 32,
+          display: "flex", flexWrap: "wrap", alignItems: "center",
+          justifyContent: "space-between", gap: 32, marginBottom: 32,
         }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <div style={{
-              width: 32, height: 32, borderRadius: 8, background: "var(--accent)",
+              width: 24, height: 24, borderRadius: "50%", background: "var(--seal-500)",
               display: "flex", alignItems: "center", justifyContent: "center",
             }}>
-              <span style={{ fontSize: 14, fontWeight: 700, color: "#fff" }}>L</span>
+              <span style={{ fontSize: 10, fontWeight: 700, color: "#fff" }}>L</span>
             </div>
-            <span style={{ fontSize: 18, fontWeight: 700, letterSpacing: -0.5 }}>
-              Limitless<span style={{ color: "var(--accent-light)" }}>Bot</span>
-            </span>
+            <span className="eyebrow">LimitlessBot</span>
           </div>
 
-          <div style={{ display: "flex", gap: 24, fontSize: 14, color: "var(--muted)" }}>
-            <a href="https://limitless.exchange" target="_blank" rel="noopener" style={{ color: "var(--muted)" }}>Limitless Exchange</a>
-            <a href="https://aomi.dev" target="_blank" rel="noopener" style={{ color: "var(--muted)" }}>Aomi</a>
-            <a href="https://base.org" target="_blank" rel="noopener" style={{ color: "var(--muted)" }}>Base</a>
-            <a href="/chat" style={{ color: "var(--muted)" }}>Launch App</a>
-          </div>
-
-          <div style={{ fontSize: 12, color: "var(--muted)" }}>
-            Built for OpenPandora Early Forge &middot; May 2026
+          <div style={{ display: "flex", gap: 24 }}>
+            <a href="https://limitless.exchange" target="_blank" rel="noopener" className="pill-btn-ghost" style={{ fontSize: 10 }}>Limitless</a>
+            <a href="https://aomi.dev" target="_blank" rel="noopener" className="pill-btn-ghost" style={{ fontSize: 10 }}>Aomi</a>
+            <a href="https://base.org" target="_blank" rel="noopener" className="pill-btn-ghost" style={{ fontSize: 10 }}>Base</a>
+            <a href="/chat" className="pill-btn-ghost" style={{ fontSize: 10 }}>Launch</a>
           </div>
         </div>
 
-        <div style={{ marginTop: 32, textAlign: "center", fontSize: 12, color: "rgba(161,161,170,0.6)" }}>
-          Prediction markets involve risk. Never bet more than you can afford to lose.
-          LimitlessBot is an AI assistant &mdash; not financial advice.
+        <div style={{
+          display: "flex", justifyContent: "space-between", alignItems: "center",
+          paddingTop: 24, borderTop: "1px solid var(--border)",
+        }}>
+          <span style={{ fontSize: 11, color: "var(--muted-foreground)" }}>
+            Built for OpenPandora Early Forge &middot; May 2026
+          </span>
+          <span style={{ fontSize: 11, color: "var(--muted-foreground)" }}>
+            Prediction markets involve risk. Not financial advice.
+          </span>
         </div>
       </div>
     </footer>
