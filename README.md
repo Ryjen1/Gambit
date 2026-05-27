@@ -120,11 +120,6 @@ Aomi hosts the Telegram bot. Contact the Aomi team to set up `@GambitBot` on Tel
 - **GitHub**: This repo
 - **Docs**: This README + PREAMBLE.md
 
-## Built For
-
-OpenPandora Early Forge — May 20-30, 2026
-
-**Tracks**: Best Overall Project ($300), Runner-Up ($150), Best Video ($50)
 
 ## License
 
