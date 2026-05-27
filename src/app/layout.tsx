@@ -2,30 +2,20 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://gambit.vercel.app"),
-  title: {
-    default: "Gambit — Bet on anything. Just ask.",
-    template: "%s · Gambit",
-  },
+  title: "Gambit — AI Prediction Market Assistant on Base",
   description:
-    "The first AI prediction market assistant on Base. Chat to bet on football, crypto, and politics. Powered by Aomi + Limitless.",
-  applicationName: "Gambit",
-  keywords: [
-    "Gambit", "prediction markets", "AI", "Limitless", "Base",
-    "football", "World Cup", "crypto", "betting", "Aomi",
-  ],
+    "Bet on football, crypto, and politics by chatting. Powered by Aomi + Limitless on Base.",
   openGraph: {
-    type: "website",
-    title: "Gambit — Bet on anything. Just ask.",
+    title: "Gambit — AI Prediction Market Assistant on Base",
     description:
-      "The first AI prediction market assistant on Base. Chat to bet on football, crypto, and politics.",
-    siteName: "Gambit",
+      "Bet on football, crypto, and politics by chatting. Powered by Aomi + Limitless on Base.",
+    type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Gambit — Bet on anything. Just ask.",
+    title: "Gambit — AI Prediction Market Assistant on Base",
     description:
-      "The first AI prediction market assistant on Base.",
+      "Bet on football, crypto, and politics by chatting. Powered by Aomi + Limitless on Base.",
   },
 };
 
@@ -38,11 +28,11 @@ export default function RootLayout({
     <html lang="en">
       <head>
         <link
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
           rel="stylesheet"
         />
       </head>
-      <body>{children}</body>
+      <body className="noise grid-bg">{children}</body>
     </html>
   );
 }

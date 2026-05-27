@@ -1,27 +1,37 @@
 export function Navbar() {
   return (
-    <nav className="liquid-glass" style={{
-      position: "fixed", top: 16, left: "50%", transform: "translateX(-50%)",
-      zIndex: 50, borderRadius: 9999, padding: "8px 8px 8px 20px",
-      display: "flex", alignItems: "center", gap: 16,
+    <nav style={{
+      position: "fixed", top: 0, left: 0, right: 0, zIndex: 50,
+      borderBottom: "1px solid var(--border)",
+      background: "rgba(0,0,0,0.8)", backdropFilter: "blur(20px)",
     }}>
-      <a href="/" style={{ display: "flex", alignItems: "center", gap: 8 }}>
-        <div style={{
-          width: 26, height: 26, borderRadius: "50%", background: "var(--accent)",
-          display: "flex", alignItems: "center", justifyContent: "center",
-        }}>
-          <span style={{ fontSize: 11, fontWeight: 700, color: "#fff" }}>G</span>
-        </div>
-        <span className="eyebrow" style={{ letterSpacing: "0.15em" }}>Gambit</span>
-      </a>
-
-      <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-        <a href="#features" className="pill-btn-ghost" style={{ padding: "8px 12px", fontSize: 10 }}>Features</a>
-        <a href="#how-it-works" className="pill-btn-ghost" style={{ padding: "8px 12px", fontSize: 10 }}>How It Works</a>
-        <a href="#demo" className="pill-btn-ghost" style={{ padding: "8px 12px", fontSize: 10 }}>Demo</a>
-        <a href="/chat" className="pill-btn pill-btn-primary" style={{ padding: "8px 18px", fontSize: 10 }}>
-          Launch
+      <div style={{
+        maxWidth: 1280, margin: "0 auto", padding: "16px 24px",
+        display: "flex", alignItems: "center", justifyContent: "space-between",
+      }}>
+        <a href="/" style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div style={{
+            width: 32, height: 32, borderRadius: 8, background: "var(--accent)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+          }}>
+            <span style={{ fontSize: 14, fontWeight: 700, color: "#fff" }}>G</span>
+          </div>
+          <span style={{ fontSize: 18, fontWeight: 700, letterSpacing: -0.5 }}>
+            Limitless<span style={{ color: "var(--accent-light)" }}>Bot</span>
+          </span>
         </a>
+
+        <div style={{ display: "flex", alignItems: "center", gap: 32 }}>
+          <a href="#features" style={{ fontSize: 14, color: "var(--muted)", transition: "color 0.2s" }}>Features</a>
+          <a href="#how-it-works" style={{ fontSize: 14, color: "var(--muted)" }}>How It Works</a>
+          <a href="#demo" style={{ fontSize: 14, color: "var(--muted)" }}>Demo</a>
+          <a href="/chat" style={{
+            borderRadius: 8, background: "var(--accent)", padding: "8px 20px",
+            fontSize: 14, fontWeight: 600, color: "#fff",
+          }}>
+            Launch App
+          </a>
+        </div>
       </div>
     </nav>
   );

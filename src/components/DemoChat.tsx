@@ -48,7 +48,7 @@ export function DemoChat() {
               width: 32, height: 32, borderRadius: "50%", background: "var(--accent)",
               display: "flex", alignItems: "center", justifyContent: "center",
             }}>
-              <span style={{ fontSize: 12, fontWeight: 700, color: "#fff" }}>L</span>
+              <span style={{ fontSize: 12, fontWeight: 700, color: "#fff" }}>G</span>
             </div>
             <div>
               <div style={{ fontSize: 14, fontWeight: 600 }}>Gambit</div>
@@ -145,7 +145,7 @@ export function DemoChat() {
             fontSize: 16, fontWeight: 600, color: "#fff",
             boxShadow: "0 0 30px rgba(99,102,241,0.15)",
           }}>
-            Try the Interactive Demo {"\u2192"}
+            Try the Interactive Demo \u2192
           </a>
         </div>
       </div>

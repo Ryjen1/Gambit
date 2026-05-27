@@ -1,104 +1,57 @@
-@import "tailwindcss";
-
 :root {
-  --bg: #07080d;
-  --fg: #f6f7f9;
+  --bg: #000000;
+  --fg: #ffffff;
   --accent: #6366f1;
   --accent-light: #818cf8;
-  --muted: #8b91a3;
-  --card: rgba(255, 255, 255, 0.03);
-  --border: rgba(255, 255, 255, 0.08);
-  --green: #34d399;
+  --muted: #a1a1aa;
+  --card: #0a0a0a;
+  --border: #1a1a1a;
+  --green: #22c55e;
   --red: #ef4444;
-  --gold: #fbbf24;
-  --serif: "Instrument Serif", Georgia, serif;
-  --mono: "JetBrains Mono", ui-monospace, monospace;
-  --sans: "Inter", system-ui, -apple-system, sans-serif;
+  --gold: #eab308;
 }
 
-*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 
-html { scroll-behavior: smooth; color-scheme: dark; }
+html {
+  scroll-behavior: smooth;
+}
 
-html, body {
+body {
   background: var(--bg);
   color: var(--fg);
-  font-family: var(--sans);
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-a { color: inherit; text-decoration: none; }
-button { cursor: pointer; border: none; background: none; font: inherit; color: inherit; }
+a {
+  color: inherit;
+  text-decoration: none;
+}
 
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: var(--bg); }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 
-/* Serif italic for editorial emphasis */
-.serif-italic {
-  font-family: var(--serif);
-  font-style: italic;
-}
-
-/* Eyebrow label */
-.eyebrow {
-  font-family: var(--mono);
-  font-size: 10px;
-  letter-spacing: 0.3em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-@media (min-width: 640px) { .eyebrow { font-size: 12px; } }
-
-/* Pill buttons */
-.pill-btn {
-  display: inline-flex; align-items: center; gap: 8px;
-  border-radius: 9999px; border: 1px solid rgba(255, 255, 255, 0.2);
-  padding: 12px 24px;
-  font-family: var(--mono);
-  font-size: 10px; letter-spacing: 0.3em; text-transform: uppercase;
-  color: var(--fg); transition: all 0.2s ease;
-}
-.pill-btn:hover { border-color: rgba(255, 255, 255, 0.6); }
-@media (min-width: 640px) { .pill-btn { font-size: 12px; padding: 14px 28px; } }
-
-.pill-btn-primary { border-color: rgba(99, 102, 241, 0.6); }
-.pill-btn-primary:hover { border-color: var(--accent); background: rgba(99, 102, 241, 0.15); }
-
-.pill-btn-ghost { border-color: transparent; color: var(--muted); }
-.pill-btn-ghost:hover { color: var(--fg); }
-
-/* Liquid glass */
-.liquid-glass {
-  background: rgba(255, 255, 255, 0.03);
-  backdrop-filter: blur(20px) saturate(150%);
-  border: 1px solid var(--border);
-  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.06);
-}
-
-/* Receipt block for on-chain data */
-.receipt {
-  font-family: var(--mono);
-  font-size: 13px; line-height: 1.6;
-  background: rgba(0, 0, 0, 0.4);
-  color: var(--green);
-  padding: 16px; border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  overflow: auto;
-}
-
-/* Gradients */
 .text-gradient {
   background: linear-gradient(135deg, #6366f1, #818cf8, #a78bfa);
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-}
-.text-gradient-gold {
-  background: linear-gradient(135deg, #eab308, #f59e0b, #fbbf24);
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
-/* Grid background */
+.text-gradient-gold {
+  background: linear-gradient(135deg, #eab308, #f59e0b, #fbbf24);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
 .grid-bg {
   background-image:
     linear-gradient(rgba(99, 102, 241, 0.03) 1px, transparent 1px),
@@ -106,48 +59,38 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
   background-size: 60px 60px;
 }
 
-/* Noise texture */
-.noise::before {
-  content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-  opacity: 0.02; pointer-events: none; z-index: 9999;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
 }
 
-/* Cursor spotlight */
-.cursor-spotlight {
-  position: fixed; inset: 0; pointer-events: none; z-index: -10;
-  background: radial-gradient(420px circle at var(--x, 50%) var(--y, 50%), rgba(255, 255, 255, 0.04), transparent 45%);
-  transition: background 50ms linear;
-}
-@media (prefers-reduced-motion: reduce) { .cursor-spotlight { display: none; } }
-
-/* Chat bubbles */
-.chat-bubble-user {
-  background: rgba(99, 102, 241, 0.15);
-  border: 1px solid rgba(99, 102, 241, 0.3);
-  border-radius: 16px 16px 4px 16px;
-}
-.chat-bubble-bot {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid var(--border);
-  border-radius: 16px 16px 16px 4px;
-}
-
-/* Animations */
-@keyframes ambientSpin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-@keyframes ping {
-  75%, 100% { transform: scale(2); opacity: 0; }
-}
-@keyframes typing {
-  0%, 100% { opacity: 0.3; }
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.4; }
   50% { opacity: 1; }
 }
-.typing-dot {
-  display: inline-block; width: 6px; height: 6px; border-radius: 50%;
-  background: var(--accent); animation: typing 1.4s infinite;
+
+@keyframes ping {
+  75%, 100% {
+    transform: scale(2);
+    opacity: 0;
+  }
 }
-.typing-dot:nth-child(2) { animation-delay: 0.2s; }
-.typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+.animate-ping {
+  animation: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+.animate-bounce {
+  animation: bounce 1s infinite;
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(-25%);
+    animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+  }
+  50% {
+    transform: translateY(0);
+    animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+  }
+}
