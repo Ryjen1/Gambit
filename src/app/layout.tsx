@@ -2,20 +2,30 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Gambit — AI Prediction Market Assistant on Base",
+  metadataBase: new URL("https://gambit.vercel.app"),
+  title: {
+    default: "Gambit — Bet on anything. Just ask.",
+    template: "%s · Gambit",
+  },
   description:
-    "Bet on football, crypto, and politics by chatting. Powered by Aomi + Limitless on Base.",
+    "The first AI prediction market assistant on Base. Chat to bet on football, crypto, and politics. Powered by Aomi + Limitless.",
+  applicationName: "Gambit",
+  keywords: [
+    "Gambit", "prediction markets", "AI", "Limitless", "Base",
+    "football", "World Cup", "crypto", "betting", "Aomi",
+  ],
   openGraph: {
-    title: "Gambit — AI Prediction Market Assistant on Base",
-    description:
-      "Bet on football, crypto, and politics by chatting. Powered by Aomi + Limitless on Base.",
     type: "website",
+    title: "Gambit — Bet on anything. Just ask.",
+    description:
+      "The first AI prediction market assistant on Base. Chat to bet on football, crypto, and politics.",
+    siteName: "Gambit",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Gambit — AI Prediction Market Assistant on Base",
+    title: "Gambit — Bet on anything. Just ask.",
     description:
-      "Bet on football, crypto, and politics by chatting. Powered by Aomi + Limitless on Base.",
+      "The first AI prediction market assistant on Base.",
   },
 };
 
