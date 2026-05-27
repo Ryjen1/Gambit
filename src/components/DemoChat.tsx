@@ -145,7 +145,7 @@ export function DemoChat() {
             fontSize: 16, fontWeight: 600, color: "#fff",
             boxShadow: "0 0 30px rgba(99,102,241,0.15)",
           }}>
-            Try the Interactive Demo \u2192
+            Try the Interactive Demo {"\u2192"}
           </a>
         </div>
       </div>
