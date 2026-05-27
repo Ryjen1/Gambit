@@ -7,13 +7,27 @@ import { Navbar } from "@/components/Navbar";
 
 export default function Home() {
   return (
-    <main className="min-h-screen">
+    <main className="grid-bg noise" style={{ minHeight: "100vh" }}>
       <Navbar />
       <Hero />
       <Features />
       <HowItWorks />
       <DemoChat />
       <Footer />
+      <script
+        dangerouslySetInnerHTML={{
+          __html: `
+            document.addEventListener('mousemove', function(e) {
+              var el = document.querySelector('.cursor-spotlight');
+              if (el) {
+                el.style.setProperty('--x', e.clientX + 'px');
+                el.style.setProperty('--y', e.clientY + 'px');
+              }
+            });
+          `,
+        }}
+      />
+      <div className="cursor-spotlight" />
     </main>
   );
 }

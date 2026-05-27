@@ -9,29 +9,25 @@ const features = [
 
 export function Features() {
   return (
-    <section id="features" style={{ padding: "128px 24px" }}>
-      <div style={{ maxWidth: 1280, margin: "0 auto" }}>
-        <div style={{ textAlign: "center", marginBottom: 64 }}>
-          <h2 style={{ fontSize: "clamp(28px, 4vw, 48px)", fontWeight: 700, letterSpacing: -1, marginBottom: 16 }}>
+    <section id="features" style={{ padding: "96px 24px", borderTop: "1px solid var(--border)" }}>
+      <div style={{ maxWidth: 1024, margin: "0 auto" }}>
+        <div style={{ marginBottom: 64, maxWidth: 640 }}>
+          <p className="eyebrow" style={{ marginBottom: 16 }}>Capabilities</p>
+          <h2 style={{ fontSize: "clamp(24px, 3.5vw, 48px)", fontWeight: 600, letterSpacing: -1, lineHeight: 1.2 }}>
             Everything you need to{" "}
-            <span className="text-gradient">trade predictions</span>
+            <span className="serif-italic" style={{ fontWeight: 400 }}>trade predictions</span>
           </h2>
-          <p style={{ maxWidth: 640, margin: "0 auto", fontSize: 18, color: "var(--muted)" }}>
-            From World Cup matches to Bitcoin price targets &mdash; if it has an outcome, you can bet on it.
-          </p>
         </div>
 
         <div style={{
-          display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 24,
+          display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 1,
+          background: "var(--border)", borderRadius: 16, overflow: "hidden",
         }}>
           {features.map((f) => (
-            <div key={f.title} style={{
-              borderRadius: 16, border: "1px solid var(--border)", background: "var(--card)",
-              padding: 32, transition: "border-color 0.2s, box-shadow 0.2s",
-            }}>
-              <div style={{ fontSize: 40, marginBottom: 16 }}>{f.icon}</div>
-              <h3 style={{ fontSize: 20, fontWeight: 600, marginBottom: 8 }}>{f.title}</h3>
-              <p style={{ fontSize: 14, lineHeight: 1.6, color: "var(--muted)" }}>{f.desc}</p>
+            <div key={f.title} style={{ background: "var(--bg)", padding: 32 }}>
+              <div style={{ fontSize: 32, marginBottom: 16 }}>{f.icon}</div>
+              <h3 style={{ fontSize: 18, fontWeight: 600, marginBottom: 8 }}>{f.title}</h3>
+              <p style={{ fontSize: 14, lineHeight: 1.7, color: "var(--muted)" }}>{f.desc}</p>
             </div>
           ))}
         </div>
