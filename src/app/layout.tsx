@@ -2,30 +2,20 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://gambit.vercel.app"),
-  title: {
-    default: "Gambit — Bet on anything. Just ask.",
-    template: "%s · Gambit",
-  },
+  title: "Gambit — AI Prediction Market Assistant on Base",
   description:
-    "The first AI prediction market assistant on Base. Chat to discover markets, analyze odds, and place bets on Limitless — no crypto expertise required.",
-  applicationName: "Gambit",
-  keywords: [
-    "Gambit", "Limitless", "Base", "prediction markets", "AI",
-    "betting", "World Cup", "crypto", "Aomi", "agentic",
-  ],
+    "Bet on football, crypto, and politics by chatting. Powered by Aomi + Limitless on Base.",
   openGraph: {
-    type: "website",
-    title: "Gambit — Bet on anything. Just ask.",
+    title: "Gambit — AI Prediction Market Assistant on Base",
     description:
-      "The first AI prediction market assistant on Base. Chat to discover markets, analyze odds, and place bets on Limitless.",
-    siteName: "Gambit",
+      "Bet on football, crypto, and politics by chatting. Powered by Aomi + Limitless on Base.",
+    type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Gambit — Bet on anything. Just ask.",
+    title: "Gambit — AI Prediction Market Assistant on Base",
     description:
-      "The first AI prediction market assistant on Base.",
+      "Bet on football, crypto, and politics by chatting. Powered by Aomi + Limitless on Base.",
   },
 };
 
@@ -35,32 +25,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="h-full antialiased">
+    <html lang="en">
       <head>
         <link
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
           rel="stylesheet"
         />
       </head>
-      <body className="min-h-full flex flex-col font-sans">
-        <div className="cursor-spotlight" id="cursor-spotlight" />
-        <main className="relative flex flex-1 flex-col overflow-x-hidden">
-          {children}
-        </main>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              document.addEventListener('mousemove', function(e) {
-                var el = document.getElementById('cursor-spotlight');
-                if (el) {
-                  el.style.setProperty('--x', e.clientX + 'px');
-                  el.style.setProperty('--y', e.clientY + 'px');
-                }
-              });
-            `,
-          }}
-        />
-      </body>
+      <body className="noise grid-bg">{children}</body>
     </html>
   );
 }

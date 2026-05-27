@@ -11,104 +11,101 @@ const messages = [
   },
   { role: "user" as const, text: "Bet $10 on Argentina to beat Algeria" },
   {
-    role: "assistant" as const,
-    receipt: {
-      market: "Argentina vs Algeria \u2014 Jun 17",
-      side: "BUY YES",
-      price: "$0.71",
-      shares: "14.08",
-      cost: "$10.00 USDC",
-      potential: "$14.08 if Argentina wins (+40.8%)",
+    role: "assistant" as const, text: "Here\u2019s your order preview:",
+    order: {
+      market: "Argentina vs Algeria \u2014 Jun 17", side: "BUY YES",
+      price: "$0.71", shares: "14.08", total: "$10.00 USDC", potential: "$14.08 if Argentina wins (+40.8%)",
     },
   },
   { role: "user" as const, text: "Confirm" },
   {
     role: "assistant" as const,
-    receipt: {
-      status: "\u2705 Order placed",
-      market: "Argentina vs Algeria \u2014 YES @ $0.71",
-      shares: "14.08",
-      cost: "$10.00 USDC",
-      payout: "$14.08 (40.8% return)",
-    },
+    text: "\u2705 Order placed!\n\nArgentina vs Algeria \u2014 YES @ $0.71\nShares: 14.08 | Cost: $10.00 USDC\nPotential payout: $14.08 (40.8% return)\n\nI\u2019ll notify you when the market resolves. Good luck!",
   },
 ];
 
 export function DemoChat() {
   return (
-    <section id="demo" style={{
-      padding: "96px 24px", borderTop: "1px solid var(--border)",
-    }}>
-      <div style={{ maxWidth: 720, margin: "0 auto" }}>
-        <div style={{ marginBottom: 64, maxWidth: 640 }}>
-          <p className="eyebrow" style={{ marginBottom: 16 }}>Live Demo</p>
-          <h2 style={{
-            fontSize: "clamp(24px, 3.5vw, 48px)", fontWeight: 500,
-            letterSpacing: -1, lineHeight: 1.2, marginBottom: 16,
-          }}>
-            See it in <span style={{ fontStyle: "italic", fontFamily: "Instrument Serif, Georgia, serif" }}>action</span>
+    <section id="demo" style={{ padding: "128px 24px", borderTop: "1px solid var(--border)" }}>
+      <div style={{ maxWidth: 800, margin: "0 auto" }}>
+        <div style={{ textAlign: "center", marginBottom: 64 }}>
+          <h2 style={{ fontSize: "clamp(28px, 4vw, 48px)", fontWeight: 700, letterSpacing: -1, marginBottom: 16 }}>
+            See it in <span className="text-gradient">action</span>
           </h2>
-          <p style={{ fontSize: 16, color: "var(--muted-foreground)", lineHeight: 1.7 }}>
+          <p style={{ maxWidth: 640, margin: "0 auto", fontSize: 18, color: "var(--muted)" }}>
             A real conversation flow &mdash; from discovering markets to placing a bet on the World Cup.
           </p>
         </div>
 
-        <div className="liquid-glass" style={{ borderRadius: 20, overflow: "hidden" }}>
-          {/* Chat header */}
+        <div style={{
+          borderRadius: 16, border: "1px solid var(--border)", background: "var(--card)", overflow: "hidden",
+        }}>
           <div style={{
             display: "flex", alignItems: "center", gap: 12,
             padding: "16px 24px", borderBottom: "1px solid var(--border)",
           }}>
             <div style={{
-              width: 28, height: 28, borderRadius: "50%", background: "var(--seal-500)",
+              width: 32, height: 32, borderRadius: "50%", background: "var(--accent)",
               display: "flex", alignItems: "center", justifyContent: "center",
             }}>
-              <span style={{ fontSize: 11, fontWeight: 700, color: "#fff" }}>L</span>
+              <span style={{ fontSize: 12, fontWeight: 700, color: "#fff" }}>L</span>
             </div>
             <div>
-              <div style={{ fontSize: 13, fontWeight: 600 }}>Gambit</div>
-              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--evidence-400)" }} />
-                <span style={{ fontSize: 11, color: "var(--evidence-400)" }}>Online</span>
+              <div style={{ fontSize: 14, fontWeight: 600 }}>Gambit</div>
+              <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "var(--green)" }}>
+                <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--green)" }} />
+                Online
               </div>
             </div>
           </div>
 
-          {/* Messages */}
-          <div style={{ maxHeight: 500, overflow: "auto", padding: 24, display: "flex", flexDirection: "column", gap: 16 }}>
+          <div style={{ maxHeight: 600, overflow: "auto", padding: 24 }}>
             {messages.map((msg, i) => (
               <div key={i} style={{
                 display: "flex", justifyContent: msg.role === "user" ? "flex-end" : "flex-start",
+                marginBottom: 16,
               }}>
-                <div className={msg.role === "user" ? "chat-bubble-user" : "chat-bubble-bot"} style={{
-                  maxWidth: "85%", padding: "12px 16px", fontSize: 14, lineHeight: 1.6,
+                <div style={{
+                  maxWidth: "85%", borderRadius: 16, padding: "12px 16px", fontSize: 14, lineHeight: 1.6,
+                  ...(msg.role === "user"
+                    ? { background: "var(--accent)", color: "#fff" }
+                    : { border: "1px solid var(--border)", background: "var(--bg)", color: "var(--fg)" }),
                 }}>
-                  {msg.text && <p style={{ margin: 0, whiteSpace: "pre-wrap" }}>{msg.text}</p>}
-
+                  <p style={{ margin: 0, whiteSpace: "pre-wrap" }}>{msg.text}</p>
                   {msg.table && (
-                    <div className="receipt" style={{ marginTop: 12, fontSize: 12 }}>
-                      <div style={{ display: "grid", gridTemplateColumns: "1fr auto auto", gap: "4px 16px" }}>
-                        <span className="eyebrow" style={{ fontSize: 9, marginBottom: 8 }}>Match</span>
-                        <span className="eyebrow" style={{ fontSize: 9, marginBottom: 8, textAlign: "right" }}>YES</span>
-                        <span className="eyebrow" style={{ fontSize: 9, marginBottom: 8, textAlign: "right" }}>NO</span>
+                    <table style={{ width: "100%", marginTop: 12, fontSize: 12, borderCollapse: "collapse" }}>
+                      <thead>
+                        <tr style={{ borderBottom: "1px solid var(--border)", color: "var(--muted)" }}>
+                          <th style={{ textAlign: "left", padding: "4px 0", fontWeight: 500 }}>Match</th>
+                          <th style={{ textAlign: "right", padding: "4px 0", fontWeight: 500 }}>YES</th>
+                          <th style={{ textAlign: "right", padding: "4px 0", fontWeight: 500 }}>NO</th>
+                        </tr>
+                      </thead>
+                      <tbody>
                         {msg.table.map((row, j) => (
-                          <div key={j} style={{ display: "contents" }}>
-                            <span style={{ color: "var(--foreground)", fontSize: 12 }}>{row.match}</span>
-                            <span style={{ textAlign: "right", fontSize: 12 }}>{row.yes}</span>
-                            <span style={{ textAlign: "right", color: "var(--muted-foreground)", fontSize: 12 }}>{row.no}</span>
-                          </div>
+                          <tr key={j} style={{ borderBottom: "1px solid rgba(26,26,26,0.5)" }}>
+                            <td style={{ padding: "6px 0" }}>{row.match}</td>
+                            <td style={{ padding: "6px 0", textAlign: "right", color: "var(--green)" }}>{row.yes}</td>
+                            <td style={{ padding: "6px 0", textAlign: "right", color: "var(--red)" }}>{row.no}</td>
+                          </tr>
                         ))}
-                      </div>
-                    </div>
+                      </tbody>
+                    </table>
                   )}
-
-                  {msg.receipt && (
-                    <div className="receipt" style={{ marginTop: 12, fontSize: 12 }}>
-                      {Object.entries(msg.receipt).map(([k, v]) => (
-                        <div key={k} style={{ display: "flex", justifyContent: "space-between", padding: "2px 0" }}>
-                          <span style={{ color: "var(--muted-foreground)" }}>{k}</span>
+                  {msg.order && (
+                    <div style={{
+                      marginTop: 12, padding: 12, borderRadius: 8,
+                      border: "1px solid rgba(99,102,241,0.3)", background: "rgba(99,102,241,0.05)",
+                      fontSize: 12,
+                    }}>
+                      {Object.entries(msg.order).map(([k, v]) => (
+                        <div key={k} style={{
+                          display: "flex", justifyContent: "space-between", padding: "3px 0",
+                        }}>
+                          <span style={{ color: "var(--muted)", textTransform: "capitalize" }}>{k}</span>
                           <span style={{
-                            color: k === "potential" || k === "payout" || k === "status" ? "var(--evidence-400)" : "var(--foreground)",
+                            fontWeight: 500,
+                            color: k === "potential" ? "var(--green)" : k === "side" ? "var(--green)" : "inherit",
                           }}>{v}</span>
                         </div>
                       ))}
@@ -119,22 +116,21 @@ export function DemoChat() {
             ))}
           </div>
 
-          {/* Input bar */}
-          <div style={{ padding: "16px 24px", borderTop: "1px solid var(--border)" }}>
+          <div style={{
+            padding: "16px 24px", borderTop: "1px solid var(--border)",
+          }}>
             <div style={{
               display: "flex", alignItems: "center", gap: 12,
-              background: "rgba(0,0,0,0.3)", border: "1px solid var(--border)",
-              borderRadius: 12, padding: "12px 16px",
+              borderRadius: 12, border: "1px solid var(--border)", background: "var(--bg)", padding: "12px 16px",
             }}>
-              <span style={{ fontSize: 13, color: "var(--muted-foreground)", fontFamily: "JetBrains Mono, monospace" }}>
+              <span style={{ fontSize: 14, color: "var(--muted)" }}>
                 Ask about markets, odds, or place a bet...
               </span>
               <div style={{
-                marginLeft: "auto", width: 28, height: 28, borderRadius: "50%",
-                background: "var(--seal-500)", display: "flex", alignItems: "center", justifyContent: "center",
-                opacity: 0.6,
+                marginLeft: "auto", width: 32, height: 32, borderRadius: 8,
+                background: "var(--accent)", display: "flex", alignItems: "center", justifyContent: "center",
               }}>
-                <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#fff" strokeWidth={2}>
+                <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#fff" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
                 </svg>
               </div>
@@ -142,9 +138,14 @@ export function DemoChat() {
           </div>
         </div>
 
-        <div style={{ textAlign: "center", marginTop: 40 }}>
-          <a href="/chat" className="pill-btn pill-btn-primary">
-            Try the interactive demo
+        <div style={{ textAlign: "center", marginTop: 32 }}>
+          <a href="/chat" style={{
+            display: "inline-flex", alignItems: "center", gap: 8,
+            borderRadius: 12, background: "var(--accent)", padding: "14px 28px",
+            fontSize: 16, fontWeight: 600, color: "#fff",
+            boxShadow: "0 0 30px rgba(99,102,241,0.15)",
+          }}>
+            Try the Interactive Demo \u2192
           </a>
         </div>
       </div>
