@@ -39,7 +39,7 @@ export function DemoChat() {
             borderBottom: "1px solid var(--border-subtle)",
           }}>
             <div style={{
-              width: 28, height: 28, borderRadius: 8, background: "var(--gold)",
+              width: 28, height: 28, borderRadius: 8, background: "var(--accent)",
               display: "flex", alignItems: "center", justifyContent: "center",
             }}>
               <span className="font-display" style={{ fontSize: 14, color: "#000" }}>G</span>
@@ -80,14 +80,14 @@ export function DemoChat() {
                   {msg.order && (
                     <div style={{
                       marginTop: 10, padding: 12, borderRadius: 10,
-                      background: "rgba(255,215,0,0.05)", border: "1px solid rgba(255,215,0,0.15)",
+                      background: "rgba(59,130,246,0.05)", border: "1px solid rgba(59,130,246,0.15)",
                       fontSize: 12,
                     }}>
                       {Object.entries(msg.order).map(([k, v]) => (
                         <div key={k} style={{ display: "flex", justifyContent: "space-between", padding: "2px 0" }}>
                           <span style={{ color: "var(--text-muted)", textTransform: "capitalize" }}>{k}</span>
                           <span style={{
-                            color: k === "potential" ? "var(--turf)" : k === "side" ? "var(--gold)" : "var(--text-primary)",
+                            color: k === "potential" ? "var(--turf)" : k === "side" ? "var(--accent)" : "var(--text-primary)",
                           }}>{v}</span>
                         </div>
                       ))}
@@ -109,7 +109,7 @@ export function DemoChat() {
                 Ask about markets, odds, or place a bet...
               </span>
               <div style={{
-                width: 28, height: 28, borderRadius: 8, background: "var(--gold)",
+                width: 28, height: 28, borderRadius: 8, background: "var(--accent)",
                 display: "flex", alignItems: "center", justifyContent: "center", opacity: 0.6,
               }}>
                 <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#000" strokeWidth={2}>
@@ -123,7 +123,7 @@ export function DemoChat() {
         <div style={{ textAlign: "center", marginTop: 32 }}>
           <a href="/chat" className="font-display" style={{
             fontSize: 14, letterSpacing: "0.08em", padding: "12px 28px",
-            background: "var(--gold)", color: "#000", borderRadius: 8, display: "inline-block",
+            background: "var(--accent)", color: "#000", borderRadius: 8, display: "inline-block",
           }}>
             TRY THE INTERACTIVE DEMO
           </a>

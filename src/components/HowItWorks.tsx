@@ -18,7 +18,7 @@ export function HowItWorks() {
             <div key={s.num} className="glass-card" style={{
               padding: "24px 28px", display: "grid", gridTemplateColumns: "60px 1fr", gap: 20, alignItems: "start",
             }}>
-              <span className="font-display" style={{ fontSize: 32, color: "var(--gold)", textShadow: "0 2px 12px rgba(255,215,0,0.15)" }}>{s.num}</span>
+              <span className="font-display" style={{ fontSize: 32, color: "var(--accent)", textShadow: "0 2px 12px rgba(59,130,246,0.15)" }}>{s.num}</span>
               <div>
                 <h3 className="font-display" style={{ fontSize: 15, letterSpacing: "0.08em", marginBottom: 6, color: "var(--text-primary)" }}>{s.title}</h3>
                 <p style={{ fontSize: 14, lineHeight: 1.7, color: "var(--text-secondary)" }}>{s.desc}</p>

@@ -8,7 +8,7 @@ export function Hero() {
       <div style={{
         position: "absolute", left: "50%", top: "25%", transform: "translate(-50%, -50%)",
         width: 600, height: 600, borderRadius: "50%",
-        background: "radial-gradient(circle, rgba(255,215,0,0.08) 0%, transparent 70%)",
+        background: "radial-gradient(circle, rgba(59,130,246,0.08) 0%, transparent 70%)",
         filter: "blur(80px)", pointerEvents: "none",
       }} />
 
@@ -16,8 +16,8 @@ export function Hero() {
         {/* Live badge */}
         <div style={{
           display: "inline-flex", alignItems: "center", gap: 8,
-          borderRadius: 8, border: "1px solid rgba(255,215,0,0.2)",
-          background: "rgba(255,215,0,0.05)", padding: "6px 14px", marginBottom: 32,
+          borderRadius: 8, border: "1px solid rgba(59,130,246,0.2)",
+          background: "rgba(59,130,246,0.05)", padding: "6px 14px", marginBottom: 32,
         }}>
           <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--turf)" }} className="animate-pulse-live" />
           <span className="font-display" style={{ fontSize: 11, color: "var(--text-muted)", letterSpacing: "0.12em" }}>
@@ -32,8 +32,8 @@ export function Hero() {
           textShadow: "0 4px 24px rgba(0,0,0,0.6)",
         }}>
           <span style={{ color: "var(--text-primary)" }}>PREDICT FOOTBALL.</span><br />
-          <span style={{ color: "var(--gold)" }}>BET SMART.</span>{" "}
-          <span style={{ color: "var(--amber)" }}>BY CHAT.</span>
+          <span style={{ color: "var(--accent)" }}>BET SMART.</span>{" "}
+          <span style={{ color: "var(--accent-light)" }}>BY CHAT.</span>
         </h1>
 
         {/* Subtitle */}
@@ -49,8 +49,8 @@ export function Hero() {
         <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
           <a href="/chat" className="font-display" style={{
             fontSize: 14, letterSpacing: "0.08em", padding: "14px 32px",
-            background: "var(--gold)", color: "#000", borderRadius: 8,
-            boxShadow: "0 20px 60px -28px rgba(255, 215, 0, 0.32)",
+            background: "var(--accent)", color: "#000", borderRadius: 8,
+            boxShadow: "0 20px 60px -28px rgba(59, 130, 246, 0.32)",
           }}>
             ENTER APP
           </a>
@@ -74,7 +74,7 @@ export function Hero() {
             { value: "$0", label: "GAS FEES" },
           ].map((s) => (
             <div key={s.label} style={{ textAlign: "center" }}>
-              <div className="font-display" style={{ fontSize: 40, color: "var(--gold)", textShadow: "0 2px 12px rgba(255,215,0,0.2)" }}>{s.value}</div>
+              <div className="font-display" style={{ fontSize: 40, color: "var(--accent)", textShadow: "0 2px 12px rgba(59,130,246,0.2)" }}>{s.value}</div>
               <div className="font-display" style={{ fontSize: 11, color: "var(--text-muted)", letterSpacing: "0.12em", marginTop: 4 }}>{s.label}</div>
             </div>
           ))}

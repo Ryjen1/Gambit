@@ -1,9 +1,9 @@
 const features = [
-  { color: "var(--gold)", label: "FOOTBALL", desc: "Bet on FIFA World Cup 2026, EPL, Champions League. Just say \"Bet $20 on Argentina to win\"." },
-  { color: "var(--amber)", label: "CRYPTO", desc: "Will ETH hit $5K? Will BTC break $150K? Trade crypto price predictions with AI analysis." },
+  { color: "var(--accent)", label: "FOOTBALL", desc: "Bet on FIFA World Cup 2026, EPL, Champions League. Just say \"Bet $20 on Argentina to win\"." },
+  { color: "var(--accent-light)", label: "CRYPTO", desc: "Will ETH hit $5K? Will BTC break $150K? Trade crypto price predictions with AI analysis." },
   { color: "var(--turf)", label: "AI ANALYSIS", desc: "Compares bookmaker odds vs on-chain prices. Calculates edge and flags value bets automatically." },
-  { color: "var(--gold)", label: "NATURAL LANGUAGE", desc: "No orderbooks, no slippage settings, no wallet popups. Just chat like you're texting a friend." },
-  { color: "var(--amber)", label: "NON-CUSTODIAL", desc: "Your wallet, your funds. Every transaction is simulated before you sign. Nothing happens without approval." },
+  { color: "var(--accent)", label: "NATURAL LANGUAGE", desc: "No orderbooks, no slippage settings, no wallet popups. Just chat like you're texting a friend." },
+  { color: "var(--accent-light)", label: "NON-CUSTODIAL", desc: "Your wallet, your funds. Every transaction is simulated before you sign. Nothing happens without approval." },
   { color: "var(--turf)", label: "MULTI-SOURCE", desc: "Combines real-world bookmaker odds with on-chain Limitless markets. No other bot does this." },
 ];
 

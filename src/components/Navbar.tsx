@@ -8,8 +8,8 @@ export function Navbar() {
       <div style={{ maxWidth: 1024, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <a href="/" style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <span className="font-display" style={{ fontSize: 20, letterSpacing: "0.04em", display: "flex", alignItems: "baseline", gap: 4 }}>
-            <span style={{ color: "var(--gold)" }}>GAM</span>
-            <span style={{ color: "var(--amber)" }}>BIT</span>
+            <span style={{ color: "var(--accent)" }}>GAM</span>
+            <span style={{ color: "var(--accent-light)" }}>BIT</span>
           </span>
         </a>
 
@@ -18,7 +18,7 @@ export function Navbar() {
           <a href="#how-it-works" className="font-display" style={{ fontSize: 13, color: "var(--text-muted)", letterSpacing: "0.08em", padding: "8px 12px" }}>HOW IT WORKS</a>
           <a href="/chat" className="font-display" style={{
             fontSize: 13, letterSpacing: "0.08em", padding: "8px 20px",
-            background: "var(--gold)", color: "#000", borderRadius: 8,
+            background: "var(--accent)", color: "#000", borderRadius: 8,
             fontWeight: 400,
           }}>
             ENTER APP

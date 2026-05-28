@@ -3,8 +3,8 @@ export function Footer() {
     <footer style={{ padding: "48px 16px", borderTop: "1px solid var(--border-subtle)" }}>
       <div style={{ maxWidth: 1024, margin: "0 auto", textAlign: "center" }}>
         <div className="font-display" style={{ fontSize: 18, letterSpacing: "0.04em", marginBottom: 16 }}>
-          <span style={{ color: "var(--gold)" }}>GAM</span>
-          <span style={{ color: "var(--amber)" }}>BIT</span>
+          <span style={{ color: "var(--accent)" }}>GAM</span>
+          <span style={{ color: "var(--accent-light)" }}>BIT</span>
         </div>
 
         <div style={{ display: "flex", gap: 20, justifyContent: "center", marginBottom: 20 }}>
