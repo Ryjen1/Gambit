@@ -4,7 +4,7 @@ const features = [
   { color: "var(--turf)", label: "AI ANALYSIS", desc: "Compares bookmaker odds vs on-chain prices. Calculates edge and flags value bets automatically." },
   { color: "var(--accent)", label: "NATURAL LANGUAGE", desc: "No orderbooks, no slippage settings, no wallet popups. Just chat like you're texting a friend." },
   { color: "var(--accent-light)", label: "NON-CUSTODIAL", desc: "Your wallet, your funds. Every transaction is simulated before you sign. Nothing happens without approval." },
-  { color: "var(--turf)", label: "MULTI-SOURCE", desc: "Combines real-world bookmaker odds with on-chain Limitless markets. No other bot does this." },
+  { color: "var(--turf)", label: "MULTI-SOURCE", desc: "Combines real-world bookmaker odds with Limitless Exchange market data. No other plugin does this." },
 ];
 
 export function Features() {

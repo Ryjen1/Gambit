@@ -21,7 +21,7 @@ export function Hero() {
         }}>
           <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--turf)" }} className="animate-pulse-live" />
           <span className="font-display" style={{ fontSize: 11, color: "var(--text-muted)", letterSpacing: "0.12em" }}>
-            LIVE ON BASE &middot; BUILT WITH AOMI SDK
+            BUILT WITH AOMI SDK &middot; LIMITLESS EXCHANGE
           </span>
         </div>
 
@@ -41,8 +41,8 @@ export function Hero() {
           maxWidth: 560, margin: "0 auto 40px", fontSize: 16, lineHeight: 1.7,
           color: "var(--text-secondary)",
         }}>
-          AI-powered prediction markets on Base. Chat to bet on football,
-          crypto, and politics &mdash; no crypto expertise required.
+          AI-powered prediction market agent. Chat to bet on football,
+          crypto, and politics on Limitless Exchange.
         </p>
 
         {/* CTAs */}

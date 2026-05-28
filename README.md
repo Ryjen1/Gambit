@@ -1,32 +1,49 @@
 # Gambit
 
-**AI sports betting agent on Base. Combines bookmaker odds with on-chain Limitless markets to find value bets.**
+**Custom Aomi SDK plugin that combines bookmaker odds with Limitless Exchange data to help football fans find value bets through natural language.**
 
-Built for [OpenPandora Early Forge](https://t.me/openpandora) using [Aomi SDK](https://github.com/aomi-labs/aomi-sdk) + [Limitless Exchange](https://limitless.exchange) on [Base](https://base.org).
+Built for [OpenPandora Early Forge](https://t.me/openpandora) using [Aomi SDK](https://github.com/aomi-labs/aomi-sdk).
 
 ## What is Gambit?
 
-Gambit is a custom Aomi plugin + frontend that helps football fans bet on prediction markets through natural language. Unlike generic prediction market bots, Gambit is a **multi-source analysis engine** — it pulls real-world bookmaker odds from The Odds API, compares them with on-chain Limitless prices, and calculates where the market is mispriced.
+Gambit is a custom Rust plugin for the Aomi runtime that helps football fans analyze and bet on prediction markets through natural language. It's a **multi-source analysis engine** — it pulls real-world bookmaker odds from The Odds API, compares them with Limitless Exchange market prices, and calculates where the market is mispriced.
 
 **Persona**: A football fan watching the World Cup who wants to bet on matches but finds crypto prediction markets intimidating.
+
+## How It Works
+
+Gambit is an **Aomi plugin** — a Rust crate that compiles to a `.so` library the Aomi runtime loads at startup. The Aomi runtime (hosted by Aomi) handles:
+- LLM orchestration (Claude Sonnet)
+- Wallet connection and transaction signing (via Para + wagmi)
+- On-chain simulation (Anvil fork)
+- Session management
+
+Gambit's plugin handles:
+- Calling the Limitless Exchange HTTP API for market data
+- Calling The Odds API for real-world bookmaker odds
+- Custom analysis logic (edge calculation, value bet detection)
+- Safety checks (amount limits, liquidity warnings)
+- Plain-English output formatting
+
+**We don't deploy contracts on Base.** The Limitless Exchange contracts are deployed by the Limitless team on Base. Our plugin calls their HTTP API. When a user places a real bet, the Aomi runtime handles the on-chain transaction through its wallet integration.
 
 ## Architecture
 
 ```
 ┌──────────────────────────────────────────┐
 │   Frontend (Next.js 15)                  │
-│   Landing page · Chat UI · Wallet        │
+│   Landing page · Chat UI                 │
 └─────────────────┬────────────────────────┘
                   │
 ┌─────────────────▼────────────────────────┐
-│   Aomi Runtime (hosted)                  │
-│   System prompt · Model · Session mgmt   │
+│   Aomi Runtime (hosted by Aomi)          │
+│   LLM · Wallet · Simulation · Sessions   │
 └─────────────────┬────────────────────────┘
                   │
 ┌─────────────────▼────────────────────────┐
-│   Gambit Plugin (Rust, aomi-sdk)         │  ← CUSTOM CODE
+│   Gambit Plugin (Rust, aomi-sdk)         │  ← OUR CODE
 │                                          │
-│   6 high-level tools:                    │
+│   6 tools:                               │
 │   ├─ gambit_find_football_markets        │
 │   ├─ gambit_analyze_value_bet            │
 │   ├─ gambit_place_bet_simplified         │
@@ -34,14 +51,9 @@ Gambit is a custom Aomi plugin + frontend that helps football fans bet on predic
 │   ├─ gambit_get_upcoming_big_matches     │
 │   └─ gambit_market_pulse                 │
 │                                          │
-│   Calls:                                 │
-│   ├─ Limitless API (on-chain markets)    │
-│   └─ The Odds API (bookmaker odds)       │
-└─────────────────┬────────────────────────┘
-                  │
-┌─────────────────▼────────────────────────┐
-│   Limitless Exchange (Base L2)           │
-│   CLOB · Conditional Tokens · USDC       │
+│   HTTP calls to:                         │
+│   ├─ api.limitless.exchange (market data)│
+│   └─ api.the-odds-api.com (bookmaker)    │
 └──────────────────────────────────────────┘
 ```
 
@@ -49,7 +61,7 @@ Gambit is a custom Aomi plugin + frontend that helps football fans bet on predic
 
 Gambit is a **custom Rust plugin** built with `aomi-sdk`. It's not a wrapper around the existing `limitless` plugin — it's original code that adds multi-source intelligence.
 
-### Plugin structure (3 files, ~500 lines of Rust)
+### Plugin structure (4 files, ~500 lines of Rust)
 
 **`src/lib.rs`** — App manifest + preamble. Registers 6 tools with `dyn_aomi_app!` macro. Defines secrets (`ODDS_API_KEY`, `LIMITLESS_API_KEY`, `LIMITLESS_API_SECRET`). Namespaces: `["evm-core"]` for wallet execution.
 
@@ -113,7 +125,7 @@ pub fn sign(secret_b64: &str, timestamp: &str, method: &str, path: &str, body: &
 Search Limitless for football markets. Returns simplified results with YES/NO prices, volume, and expiration.
 
 ### 2. `gambit_analyze_value_bet(slug)`
-**Core intelligence tool.** Fetches Limitless market + bookmaker odds, calculates edge (mispricing), recommends BUY YES/NO. Returns structured analysis with risk assessment.
+**Core intelligence tool.** Fetches Limitless market data + bookmaker odds, calculates edge (mispricing), recommends BUY YES/NO. Returns structured analysis with risk assessment.
 
 ### 3. `gambit_place_bet_simplified(amount, slug, outcome)`
 Full bet flow: fetches market → checks orderbook liquidity → builds preview with cost/payout/risk → returns preview for confirmation. **Does NOT execute** — safety-first design. Enforces $1-$10,000 limits in Rust.
@@ -143,13 +155,12 @@ git clone https://github.com/Ryjen1/Gambit.git
 cd Gambit
 
 # Frontend
-cd frontend
 npm install
 npm run dev
 # http://localhost:3456
 
 # Plugin (requires Rust toolchain)
-cd ../plugin
+cd plugin
 cargo check
 ```
 
@@ -160,8 +171,6 @@ cargo check
 | `ODDS_API_KEY` | For bookmaker odds | Free at the-odds-api.com |
 | `LIMITLESS_API_KEY` | For positions/orders | From limitless.exchange settings |
 | `LIMITLESS_API_SECRET` | For positions/orders | HMAC secret from limitless.exchange |
-| `NEXT_PUBLIC_AOMI_APP_SLUG` | Frontend | Default: `gambit` |
-| `NEXT_PUBLIC_AOMI_API_KEY` | Frontend | From aomi.dev dashboard |
 
 ## Tech Stack
 
@@ -171,13 +180,12 @@ cargo check
 | Frontend | Next.js 15, React 19, TypeScript |
 | AI Runtime | Aomi (hosted) — Claude Sonnet |
 | Data Sources | Limitless Exchange API + The Odds API |
-| Blockchain | Base (L2), USDC, CLOB Exchange |
 
 ## Submission
 
 - **GitHub**: [github.com/Ryjen1/Gambit](https://github.com/Ryjen1/Gambit)
 - **Plugin**: `plugin/` — custom Rust plugin built with aomi-sdk
-- **Frontend**: `frontend/` — Next.js landing page + chat demo
+- **Frontend**: root — Next.js landing page + chat UI
 - **Preamble**: `plugin/src/lib.rs` — football fan persona + analysis rules
 
 ## Built For

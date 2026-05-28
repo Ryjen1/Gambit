@@ -4,7 +4,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Gambit — AI Sports Betting Agent on Base",
   description:
-    "Bet on football, crypto, and politics by chatting. AI-powered prediction market agent built with Aomi SDK on Base.",
+    "Custom Aomi SDK plugin that combines bookmaker odds with Limitless Exchange data. Bet on football by chatting.",
 };
 
 export default function RootLayout({
