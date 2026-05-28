@@ -1,47 +1,28 @@
 const steps = [
-  { step: "01", title: "Connect Wallet", desc: "Link your wallet on Base. Aomi handles the connection \u2014 your keys never leave your device." },
-  { step: "02", title: "Ask in Plain English", desc: "\"What football matches can I bet on?\" or \"Bet $10 on Argentina\" \u2014 the AI understands intent." },
-  { step: "03", title: "Review & Confirm", desc: "The AI shows a preview: market, odds, cost, potential payout. One click to confirm." },
-  { step: "04", title: "Track Positions", desc: "\"Show my bets\" \u2014 see all open positions, unrealized P&L, and upcoming resolutions." },
+  { num: "01", title: "CONNECT WALLET", desc: "Link your wallet on Base. Aomi handles the connection \u2014 your keys never leave your device." },
+  { num: "02", title: "ASK IN PLAIN ENGLISH", desc: "\"What football matches can I bet on?\" or \"Bet $10 on Argentina\" \u2014 the AI understands intent." },
+  { num: "03", title: "REVIEW & CONFIRM", desc: "The AI shows a preview: market, odds, cost, potential payout. One click to confirm." },
+  { num: "04", title: "TRACK POSITIONS", desc: "\"Show my bets\" \u2014 see all open positions, unrealized P&L, and upcoming resolutions." },
 ];
 
 export function HowItWorks() {
   return (
-    <section id="how-it-works" style={{
-      padding: "128px 24px", borderTop: "1px solid var(--border)",
-    }}>
-      <div style={{ maxWidth: 1280, margin: "0 auto" }}>
-        <div style={{ textAlign: "center", marginBottom: 64 }}>
-          <h2 style={{ fontSize: "clamp(28px, 4vw, 48px)", fontWeight: 700, letterSpacing: -1, marginBottom: 16 }}>
-            From chat to <span className="text-gradient-gold">bet</span> in 4 steps
-          </h2>
-          <p style={{ maxWidth: 640, margin: "0 auto", fontSize: 18, color: "var(--muted)" }}>
-            No seed phrases. No gas estimates. No orderbook screens. Just a conversation.
-          </p>
-        </div>
+    <section id="how-it-works" style={{ padding: "80px 16px", borderTop: "1px solid var(--border-subtle)" }}>
+      <div style={{ maxWidth: 1024, margin: "0 auto" }}>
+        <h2 className="font-display" style={{ fontSize: 20, letterSpacing: "0.08em", textTransform: "uppercase", textAlign: "center", marginBottom: 48 }}>
+          FROM CHAT TO BET IN 4 STEPS
+        </h2>
 
-        <div style={{
-          display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-          gap: 48, position: "relative",
-        }}>
+        <div style={{ display: "grid", gap: 12 }}>
           {steps.map((s) => (
-            <div key={s.step} style={{ textAlign: "center" }}>
-              <div style={{
-                width: 64, height: 64, borderRadius: 16, margin: "0 auto 24px",
-                border: "1px solid var(--accent)", background: "var(--bg)",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                fontSize: 24, color: "var(--accent-light)",
-              }}>
-                {s.step}
+            <div key={s.num} className="glass-card" style={{
+              padding: "24px 28px", display: "grid", gridTemplateColumns: "60px 1fr", gap: 20, alignItems: "start",
+            }}>
+              <span className="font-display" style={{ fontSize: 32, color: "var(--gold)", textShadow: "0 2px 12px rgba(255,215,0,0.15)" }}>{s.num}</span>
+              <div>
+                <h3 className="font-display" style={{ fontSize: 15, letterSpacing: "0.08em", marginBottom: 6, color: "var(--text-primary)" }}>{s.title}</h3>
+                <p style={{ fontSize: 14, lineHeight: 1.7, color: "var(--text-secondary)" }}>{s.desc}</p>
               </div>
-              <div style={{
-                fontSize: 11, fontWeight: 700, textTransform: "uppercase",
-                letterSpacing: 2, color: "var(--accent)", marginBottom: 8,
-              }}>
-                Step {s.step}
-              </div>
-              <h3 style={{ fontSize: 20, fontWeight: 600, marginBottom: 12 }}>{s.title}</h3>
-              <p style={{ fontSize: 14, lineHeight: 1.6, color: "var(--muted)" }}>{s.desc}</p>
             </div>
           ))}
         </div>

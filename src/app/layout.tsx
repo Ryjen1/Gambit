@@ -2,21 +2,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Gambit — AI Prediction Market Assistant on Base",
+  title: "Gambit — AI Sports Betting Agent on Base",
   description:
-    "Bet on football, crypto, and politics by chatting. Powered by Aomi + Limitless on Base.",
-  openGraph: {
-    title: "Gambit — AI Prediction Market Assistant on Base",
-    description:
-      "Bet on football, crypto, and politics by chatting. Powered by Aomi + Limitless on Base.",
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Gambit — AI Prediction Market Assistant on Base",
-    description:
-      "Bet on football, crypto, and politics by chatting. Powered by Aomi + Limitless on Base.",
-  },
+    "Bet on football, crypto, and politics by chatting. AI-powered prediction market agent built with Aomi SDK on Base.",
 };
 
 export default function RootLayout({
@@ -25,14 +13,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" className="dark">
       <head>
         <link
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
           rel="stylesheet"
         />
       </head>
-      <body className="noise grid-bg">{children}</body>
+      <body className="noise">{children}</body>
     </html>
   );
 }

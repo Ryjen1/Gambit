@@ -1,37 +1,33 @@
 const features = [
-  { icon: "\u26bd", title: "Football Predictions", desc: "Bet on FIFA World Cup 2026, EPL, Champions League. Just say \"Bet $20 on Argentina to win\"." },
-  { icon: "\ud83d\udcc8", title: "Crypto Markets", desc: "Will ETH hit $5K? Will BTC break $150K? Trade crypto price predictions with AI-powered odds analysis." },
-  { icon: "\ud83c\udfdb\ufe0f", title: "Political Outcomes", desc: "Elections, policy decisions, and governance votes. The AI finds the market, you make the call." },
-  { icon: "\ud83e\udd16", title: "AI Odds Analysis", desc: "Get implied probability calculations, value bet detection, and risk assessment before every trade." },
-  { icon: "\ud83d\udcac", title: "Natural Language", desc: "No orderbooks, no slippage settings, no wallet popups. Just chat like you're texting a friend." },
-  { icon: "\ud83d\udd12", title: "Non-Custodial", desc: "Your wallet, your funds. Aomi simulates every transaction before you sign. Nothing happens without your approval." },
+  { color: "var(--gold)", label: "FOOTBALL", desc: "Bet on FIFA World Cup 2026, EPL, Champions League. Just say \"Bet $20 on Argentina to win\"." },
+  { color: "var(--amber)", label: "CRYPTO", desc: "Will ETH hit $5K? Will BTC break $150K? Trade crypto price predictions with AI analysis." },
+  { color: "var(--turf)", label: "AI ANALYSIS", desc: "Compares bookmaker odds vs on-chain prices. Calculates edge and flags value bets automatically." },
+  { color: "var(--gold)", label: "NATURAL LANGUAGE", desc: "No orderbooks, no slippage settings, no wallet popups. Just chat like you're texting a friend." },
+  { color: "var(--amber)", label: "NON-CUSTODIAL", desc: "Your wallet, your funds. Every transaction is simulated before you sign. Nothing happens without approval." },
+  { color: "var(--turf)", label: "MULTI-SOURCE", desc: "Combines real-world bookmaker odds with on-chain Limitless markets. No other bot does this." },
 ];
 
 export function Features() {
   return (
-    <section id="features" style={{ padding: "128px 24px" }}>
-      <div style={{ maxWidth: 1280, margin: "0 auto" }}>
-        <div style={{ textAlign: "center", marginBottom: 64 }}>
-          <h2 style={{ fontSize: "clamp(28px, 4vw, 48px)", fontWeight: 700, letterSpacing: -1, marginBottom: 16 }}>
-            Everything you need to{" "}
-            <span className="text-gradient">trade predictions</span>
+    <section id="features" style={{ padding: "80px 16px", borderTop: "1px solid var(--border-subtle)" }}>
+      <div style={{ maxWidth: 1024, margin: "0 auto" }}>
+        <div style={{ textAlign: "center", marginBottom: 48 }}>
+          <h2 className="font-display" style={{ fontSize: 20, letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 12 }}>
+            WHY GAMBIT
           </h2>
-          <p style={{ maxWidth: 640, margin: "0 auto", fontSize: 18, color: "var(--muted)" }}>
-            From World Cup matches to Bitcoin price targets &mdash; if it has an outcome, you can bet on it.
+          <p style={{ maxWidth: 480, margin: "0 auto", fontSize: 15, color: "var(--text-secondary)", lineHeight: 1.7 }}>
+            Not just another betting bot. Multi-source intelligence that finds
+            value bets other tools miss.
           </p>
         </div>
 
-        <div style={{
-          display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 24,
-        }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 12 }}>
           {features.map((f) => (
-            <div key={f.title} style={{
-              borderRadius: 16, border: "1px solid var(--border)", background: "var(--card)",
-              padding: 32, transition: "border-color 0.2s, box-shadow 0.2s",
-            }}>
-              <div style={{ fontSize: 40, marginBottom: 16 }}>{f.icon}</div>
-              <h3 style={{ fontSize: 20, fontWeight: 600, marginBottom: 8 }}>{f.title}</h3>
-              <p style={{ fontSize: 14, lineHeight: 1.6, color: "var(--muted)" }}>{f.desc}</p>
+            <div key={f.label} className="glass-card" style={{ padding: 24 }}>
+              <div className="font-display" style={{ fontSize: 13, letterSpacing: "0.08em", color: f.color, marginBottom: 10 }}>
+                {f.label}
+              </div>
+              <p style={{ fontSize: 14, lineHeight: 1.7, color: "var(--text-secondary)" }}>{f.desc}</p>
             </div>
           ))}
         </div>

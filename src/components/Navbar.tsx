@@ -1,38 +1,30 @@
 export function Navbar() {
   return (
-    <nav style={{
-      position: "fixed", top: 0, left: 0, right: 0, zIndex: 50,
-      borderBottom: "1px solid var(--border)",
-      background: "rgba(0,0,0,0.8)", backdropFilter: "blur(20px)",
+    <header style={{
+      position: "sticky", top: 0, zIndex: 40, padding: "12px 16px",
+      background: "rgba(8, 12, 16, 0.85)", backdropFilter: "blur(16px)",
+      borderBottom: "1px solid var(--border-subtle)",
     }}>
-      <div style={{
-        maxWidth: 1280, margin: "0 auto", padding: "16px 24px",
-        display: "flex", alignItems: "center", justifyContent: "space-between",
-      }}>
-        <a href="/" style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <div style={{
-            width: 32, height: 32, borderRadius: 8, background: "var(--accent)",
-            display: "flex", alignItems: "center", justifyContent: "center",
-          }}>
-            <span style={{ fontSize: 14, fontWeight: 700, color: "#fff" }}>G</span>
-          </div>
-          <span style={{ fontSize: 18, fontWeight: 700, letterSpacing: -0.5 }}>
-            Limitless<span style={{ color: "var(--accent-light)" }}>Bot</span>
+      <div style={{ maxWidth: 1024, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <a href="/" style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <span className="font-display" style={{ fontSize: 20, letterSpacing: "0.04em", display: "flex", alignItems: "baseline", gap: 4 }}>
+            <span style={{ color: "var(--gold)" }}>GAM</span>
+            <span style={{ color: "var(--amber)" }}>BIT</span>
           </span>
         </a>
 
-        <div style={{ display: "flex", alignItems: "center", gap: 32 }}>
-          <a href="#features" style={{ fontSize: 14, color: "var(--muted)", transition: "color 0.2s" }}>Features</a>
-          <a href="#how-it-works" style={{ fontSize: 14, color: "var(--muted)" }}>How It Works</a>
-          <a href="#demo" style={{ fontSize: 14, color: "var(--muted)" }}>Demo</a>
-          <a href="/chat" style={{
-            borderRadius: 8, background: "var(--accent)", padding: "8px 20px",
-            fontSize: 14, fontWeight: 600, color: "#fff",
+        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <a href="#features" className="font-display" style={{ fontSize: 13, color: "var(--text-muted)", letterSpacing: "0.08em", padding: "8px 12px" }}>FEATURES</a>
+          <a href="#how-it-works" className="font-display" style={{ fontSize: 13, color: "var(--text-muted)", letterSpacing: "0.08em", padding: "8px 12px" }}>HOW IT WORKS</a>
+          <a href="/chat" className="font-display" style={{
+            fontSize: 13, letterSpacing: "0.08em", padding: "8px 20px",
+            background: "var(--gold)", color: "#000", borderRadius: 8,
+            fontWeight: 400,
           }}>
-            Launch App
+            ENTER APP
           </a>
         </div>
       </div>
-    </nav>
+    </header>
   );
 }

@@ -119,7 +119,7 @@ function ChatInterface() {
             </button>
           </div>
           <p style={{ textAlign: "center", fontSize: 10, color: "var(--muted)", marginTop: 8, fontFamily: "var(--mono)", letterSpacing: "0.05em" }}>
-            Powered by Aomi + Limitless on Base
+            Gambit &middot; Powered by Aomi SDK
           </p>
         </div>
       </div>
