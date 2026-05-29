@@ -10,52 +10,70 @@ Gambit is a custom Rust plugin for the Aomi runtime that helps football fans ana
 
 **Persona**: A football fan watching the World Cup who wants to bet on matches but finds crypto prediction markets intimidating.
 
-## How It Works
-
-Gambit is an **Aomi plugin** — a Rust crate that compiles to a `.so` library the Aomi runtime loads at startup. The Aomi runtime (hosted by Aomi) handles:
-- LLM orchestration (Claude Sonnet)
-- Wallet connection and transaction signing (via Para + wagmi)
-- On-chain simulation (Anvil fork)
-- Session management
-
-Gambit's plugin handles:
-- Calling the Limitless Exchange HTTP API for market data
-- Calling The Odds API for real-world bookmaker odds
-- Custom analysis logic (edge calculation, value bet detection)
-- Safety checks (amount limits, liquidity warnings)
-- Plain-English output formatting
-
-**We don't deploy contracts on Base.** The Limitless Exchange contracts are deployed by the Limitless team on Base. Our plugin calls their HTTP API. When a user places a real bet, the Aomi runtime handles the on-chain transaction through its wallet integration.
-
-## Architecture
+## How It Works — Full Flow
 
 ```
-┌──────────────────────────────────────────┐
-│   Frontend (Next.js 15)                  │
-│   Landing page · Chat UI                 │
-└─────────────────┬────────────────────────┘
-                  │
-┌─────────────────▼────────────────────────┐
-│   Aomi Runtime (hosted by Aomi)          │
-│   LLM · Wallet · Simulation · Sessions   │
-└─────────────────┬────────────────────────┘
-                  │
-┌─────────────────▼────────────────────────┐
-│   Gambit Plugin (Rust, aomi-sdk)         │  ← OUR CODE
-│                                          │
-│   6 tools:                               │
-│   ├─ gambit_find_football_markets        │
-│   ├─ gambit_analyze_value_bet            │
-│   ├─ gambit_place_bet_simplified         │
-│   ├─ gambit_get_my_bets_summary          │
-│   ├─ gambit_get_upcoming_big_matches     │
-│   └─ gambit_market_pulse                 │
-│                                          │
-│   HTTP calls to:                         │
-│   ├─ api.limitless.exchange (market data)│
-│   └─ api.the-odds-api.com (bookmaker)    │
-└──────────────────────────────────────────┘
+User types "Bet $10 on Argentina"
+         │
+         ▼
+┌─────────────────────────┐
+│  Privy (wallet)         │  User signed in via email/Google/wallet
+│  Handles: signing       │  Privy holds the session key
+└────────┬────────────────┘
+         │
+         ▼
+┌─────────────────────────┐
+│  Aomi Runtime (hosted)  │  Receives user message
+│  Claude Sonnet decides  │  "I need to call gambit_place_bet_simplified"
+│  which tool to call     │
+└────────┬────────────────┘
+         │
+         ▼
+┌─────────────────────────┐
+│  Gambit Plugin (Rust)   │  Our code runs:
+│  gambit_place_bet_      │  1. GET api.limitless.exchange/markets/argentina
+│  simplified()           │  2. GET api.limitless.exchange/markets/argentina/orderbook
+│                         │  3. Calculate: $10 / $0.71 = 14.08 shares
+│                         │  4. Return preview JSON
+└────────┬────────────────┘
+         │
+         ▼
+┌─────────────────────────┐
+│  Aomi Runtime           │  Formats preview for user
+│  "Here's your bet       │  User confirms
+│   preview..."           │
+└────────┬────────────────┘
+         │
+         ▼
+┌─────────────────────────┐
+│  evm-core (namespace)   │  Aomi's wallet execution layer
+│  1. Approve USDC spend  │  Uses Privy session key to sign
+│  2. Submit order to     │  Transactions go to Base L2
+│     Limitless CLOB      │
+│  3. Return tx hash      │
+└────────┬────────────────┘
+         │
+         ▼
+┌─────────────────────────┐
+│  Limitless Exchange     │  Smart contracts on Base
+│  (Base L2)              │  CLOB order matching
+│  USDC collateral        │  Conditional token settlement
+└─────────────────────────┘
 ```
+
+### What we built vs what others provide
+
+| | We built | Aomi provides | Limitless provides |
+|---|---|---|---|
+| **Plugin tools** | 6 Rust tools | Runtime loads them | — |
+| **API client** | `limitless_public()` + `limitless_signed()` | — | The API itself |
+| **Analysis** | Edge calculation, value bet detection | — | — |
+| **Safety** | Amount limits, liquidity checks | — | — |
+| **Wallet** | — | evm-core namespace | — |
+| **LLM** | — | Claude Sonnet | — |
+| **Smart contracts** | — | — | CLOB on Base |
+
+We never touch the chain directly. Our plugin calls HTTP APIs. When a real bet happens, Aomi's `evm-core` namespace handles the on-chain transaction using the user's Privy session key.
 
 ## How Gambit Uses Aomi SDK
 
@@ -84,7 +102,7 @@ dyn_aomi_app!(
 );
 ```
 
-**`src/auth.rs`** — HMAC-SHA256 signing for Limitless's `lmts-*` headers. Uses `aomi_ext::hmac_auth` primitives with Limitless's specific prehash format.
+**`src/auth.rs`** — HMAC-SHA256 signing for Limitless's `lmts-*` headers. Uses `hmac`, `sha2`, `base64` crates directly (aomi-ext not on crates.io).
 
 ```rust
 pub fn sign(secret_b64: &str, timestamp: &str, method: &str, path: &str, body: &str)
@@ -156,6 +174,8 @@ cd Gambit
 
 # Frontend
 npm install
+cp .env.example .env.local
+# Fill in NEXT_PUBLIC_PRIVY_APP_ID from https://privy.io
 npm run dev
 # http://localhost:3456
 
@@ -168,18 +188,22 @@ cargo check
 
 | Variable | Required | Description |
 |---|---|---|
-| `ODDS_API_KEY` | For bookmaker odds | Free at the-odds-api.com |
-| `LIMITLESS_API_KEY` | For positions/orders | From limitless.exchange settings |
-| `LIMITLESS_API_SECRET` | For positions/orders | HMAC secret from limitless.exchange |
+| `NEXT_PUBLIC_PRIVY_APP_ID` | Yes | Get free at [privy.io](https://privy.io) |
+| `NEXT_PUBLIC_AOMI_BACKEND_URL` | No | Default: `https://staging-api.aomi.dev` |
+| `ODDS_API_KEY` | Plugin | Free at the-odds-api.com (Aomi secret) |
+| `LIMITLESS_API_KEY` | Plugin | From limitless.exchange (Aomi secret) |
+| `LIMITLESS_API_SECRET` | Plugin | HMAC secret (Aomi secret) |
 
 ## Tech Stack
 
 | Layer | Technology |
 |---|---|
-| Plugin | Rust, aomi-sdk, aomi-ext (HMAC), reqwest, serde_json |
+| Wallet | Privy (email/Google/wallet login, non-custodial) |
 | Frontend | Next.js 15, React 19, TypeScript |
 | AI Runtime | Aomi (hosted) — Claude Sonnet |
+| Plugin | Rust, aomi-sdk, reqwest, serde_json, hmac, sha2 |
 | Data Sources | Limitless Exchange API + The Odds API |
+| Blockchain | Base L2 (via Aomi evm-core namespace) |
 
 ## Submission
 
