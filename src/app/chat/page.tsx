@@ -4,9 +4,10 @@ import { AomiRuntimeProvider, useAomiRuntime, useCurrentThreadMessages } from "@
 import { useState, useRef, useEffect, useCallback } from "react";
 
 function ChatInterface() {
-  const { isRunning, sendMessage, currentThreadId, error } = useAomiRuntime();
+  const { isRunning, sendMessage } = useAomiRuntime();
   const messages = useCurrentThreadMessages();
   const [input, setInput] = useState("");
+  const [connectionError, setConnectionError] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -49,13 +50,13 @@ function ChatInterface() {
             <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
               <span style={{
                 width: 5, height: 5, borderRadius: "50%",
-                background: error ? "var(--red-alert)" : "var(--turf)",
+                background: connectionError ? "var(--red-alert)" : "var(--turf)",
               }} className="animate-pulse-live" />
               <span style={{
                 fontSize: 10,
-                color: error ? "var(--red-alert)" : "var(--turf)",
+                color: connectionError ? "var(--red-alert)" : "var(--turf)",
               }}>
-                {error ? "Connection error" : "Connected to Aomi"}
+                {connectionError ? "Connection connectionError" : "Connected to Aomi"}
               </span>
             </div>
           </div>
@@ -66,19 +67,19 @@ function ChatInterface() {
       </header>
 
       {/* Error banner */}
-      {error && (
+      {connectionError && (
         <div style={{
           padding: "12px 20px", background: "rgba(255,61,87,0.1)",
           borderBottom: "1px solid rgba(255,61,87,0.2)", fontSize: 13, color: "var(--red-alert)",
         }}>
-          <strong>Aomi connection error:</strong> {typeof error === "string" ? error : error.message || "Could not connect to Aomi backend. The app may not be activated yet."}
+          <strong>Aomi connection connectionError:</strong> {typeof connectionError === "string" ? connectionError : connectionError.message || "Could not connect to Aomi backend. The app may not be activated yet."}
         </div>
       )}
 
       {/* Messages */}
       <div style={{ flex: 1, overflow: "auto", padding: 20 }}>
         <div style={{ maxWidth: 600, margin: "0 auto", display: "flex", flexDirection: "column", gap: 12 }}>
-          {messages.length === 0 && !error && (
+          {messages.length === 0 && !connectionError && (
             <div style={{ padding: "80px 0", textAlign: "center" }}>
               <div style={{ fontSize: 48, marginBottom: 12 }}>{"\u26bd"}</div>
               <p className="font-display" style={{ fontSize: 11, letterSpacing: "0.12em", color: "var(--text-muted)", marginBottom: 16 }}>AI PREDICTION MARKETS</p>
@@ -138,8 +139,8 @@ function ChatInterface() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && (e.preventDefault(), handleSend())}
-              placeholder={error ? "Aomi not connected — check activation" : "Ask about markets, odds, or place a bet..."}
-              disabled={isTyping || !!error}
+              placeholder={connectionError ? "Aomi not connected — check activation" : "Ask about markets, odds, or place a bet..."}
+              disabled={isRunning || !!connectionError}
               style={{
                 flex: 1, background: "transparent", border: "none", outline: "none",
                 fontSize: 14, color: "var(--text-primary)", fontFamily: "monospace",
@@ -147,12 +148,12 @@ function ChatInterface() {
             />
             <button
               onClick={handleSend}
-              disabled={!input.trim() || isTyping || !!error}
+              disabled={!input.trim() || isRunning || !!connectionError}
               style={{
                 width: 30, height: 30, borderRadius: 8,
-                background: input.trim() && !isTyping && !error ? "var(--accent)" : "var(--text-muted)",
+                background: input.trim() && !isRunning && !connectionError ? "var(--accent)" : "var(--text-muted)",
                 display: "flex", alignItems: "center", justifyContent: "center",
-                opacity: input.trim() && !isTyping && !error ? 1 : 0.4, transition: "all 0.2s",
+                opacity: input.trim() && !isRunning && !connectionError ? 1 : 0.4, transition: "all 0.2s",
               }}
             >
               <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#fff" strokeWidth={2}>
