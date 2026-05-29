@@ -9,52 +9,40 @@ interface Message {
   receipt?: Record<string, string>;
 }
 
-// Only market discovery works without wallet
-const DISCOVERY_RESPONSES: Record<string, Message> = {
-  "what football matches can i bet on?": {
-    role: "assistant",
-    content: "Here are the upcoming FIFA World Cup 2026 matches on Limitless:",
-    table: [
-      { match: "Mexico vs South Africa (Jun 11)", yes: "67%", no: "14%" },
-      { match: "South Korea vs Czech Republic (Jun 12)", yes: "37%", no: "36%" },
-      { match: "Canada vs Bosnia & Herzegovina (Jun 12)", yes: "54%", no: "23%" },
-      { match: "Argentina vs Algeria (Jun 17)", yes: "71%", no: "12%" },
-      { match: "Germany vs Curacao (Jun 14)", yes: "94%", no: "5%" },
-    ],
-  },
-  "will eth hit $5k by year end?": {
-    role: "assistant",
-    content: "Found a market: \"Will ETH be above $5,000 by EOY 2026\"",
-    receipt: {
-      market: "ETH above $5,000 by EOY",
-      yes: "23% ($0.23/share)",
-      no: "77% ($0.77/share)",
-      volume: "$142,850",
-      liquidity: "$38,200",
-      expires: "Dec 31, 2026",
-      analysis: "94% rally needed. 23% fair for bull cycle.",
-    },
-  },
-};
-
-function getResponse(input: string, walletConnected: boolean): Message {
+function getResponse(input: string): Message {
   const lower = input.toLowerCase().trim();
 
-  // Discovery works without wallet
-  if (DISCOVERY_RESPONSES[lower]) return DISCOVERY_RESPONSES[lower];
-  if (lower.includes("football") || lower.includes("soccer") || lower.includes("world cup"))
-    return DISCOVERY_RESPONSES["what football matches can i bet on?"];
-  if (lower.includes("eth") || lower.includes("bitcoin") || lower.includes("crypto"))
-    return DISCOVERY_RESPONSES["will eth hit $5k by year end?"];
+  if (lower.includes("football") || lower.includes("soccer") || lower.includes("world cup") || lower === "what football matches can i bet on?") {
+    return {
+      role: "assistant",
+      content: "Here are the upcoming FIFA World Cup 2026 matches on Limitless:",
+      table: [
+        { match: "Mexico vs South Africa (Jun 11)", yes: "67%", no: "14%" },
+        { match: "South Korea vs Czech Republic (Jun 12)", yes: "37%", no: "36%" },
+        { match: "Canada vs Bosnia & Herzegovina (Jun 12)", yes: "54%", no: "23%" },
+        { match: "Argentina vs Algeria (Jun 17)", yes: "71%", no: "12%" },
+        { match: "Germany vs Curacao (Jun 14)", yes: "94%", no: "5%" },
+      ],
+    };
+  }
 
-  // Betting requires wallet
-  if (lower.includes("bet") || lower.includes("buy") || lower.includes("wager")) {
-    if (!walletConnected) {
-      return {
-        role: "assistant",
-        content: "You need to connect your wallet before placing bets.\n\nTap \"Connect Wallet\" in the top right corner to get started. Your wallet stays on your device \u2014 Gambit never sees your keys.",
-      };
-    }
+  if (lower.includes("eth") || lower.includes("bitcoin") || lower.includes("crypto") || lower === "will eth hit $5k by year end?") {
+    return {
+      role: "assistant",
+      content: "Found a market: \"Will ETH be above $5,000 by EOY 2026\"",
+      receipt: {
+        market: "ETH above $5,000 by EOY",
+        yes: "23% ($0.23/share)",
+        no: "77% ($0.77/share)",
+        volume: "$142,850",
+        liquidity: "$38,200",
+        expires: "Dec 31, 2026",
+        analysis: "94% rally needed. 23% fair for bull cycle.",
+      },
+    };
+  }
+
+  if (lower.includes("bet") || lower.includes("buy") || lower.includes("wager") || lower === "bet $10 on argentina to beat algeria") {
     return {
       role: "assistant",
       content: "Order preview \u2014 please confirm:",
@@ -65,19 +53,12 @@ function getResponse(input: string, walletConnected: boolean): Message {
         shares: "14.08",
         cost: "$10.00 USDC",
         potential: "$14.08 if Argentina wins (+40.8%)",
-        "risk warning": "Thin liquidity \u2014 your order may not fill entirely.",
+        "risk warning": "Thin liquidity \u2014 order may not fill entirely.",
       },
     };
   }
 
-  // Positions require wallet
-  if (lower.includes("position") || lower.includes("portfolio") || lower.includes("bets") || lower.includes("my ")) {
-    if (!walletConnected) {
-      return {
-        role: "assistant",
-        content: "You need to connect your wallet to see your positions.\n\nTap \"Connect Wallet\" in the top right corner.",
-      };
-    }
+  if (lower.includes("position") || lower.includes("portfolio") || lower === "show my positions") {
     return {
       role: "assistant",
       content: "Your open positions on Limitless:",
@@ -95,16 +76,99 @@ function getResponse(input: string, walletConnected: boolean): Message {
 
   return {
     role: "assistant",
-    content: "Try asking:\n\u2022 \"What football matches can I bet on?\" (no wallet needed)\n\u2022 \"Bet $10 on Argentina to beat Algeria\" (wallet required)\n\u2022 \"Show my positions\" (wallet required)\n\u2022 \"Will ETH hit $5K by year end?\" (no wallet needed)",
+    content: "Try asking:\n\u2022 \"What football matches can I bet on?\"\n\u2022 \"Bet $10 on Argentina to beat Algeria\"\n\u2022 \"Show my positions\"\n\u2022 \"Will ETH hit $5K by year end?\"",
   };
 }
 
-export default function ChatPage() {
+// =============================================================================
+// Wallet Gate Screen
+// =============================================================================
+
+function WalletGate({ onConnect }: { onConnect: () => void }) {
+  return (
+    <div style={{
+      height: "100vh", display: "flex", flexDirection: "column",
+      alignItems: "center", justifyContent: "center",
+      background: "var(--bg-base)", color: "var(--text-primary)", padding: 24,
+    }}>
+      {/* Ambient glow */}
+      <div style={{
+        position: "absolute", left: "50%", top: "40%", transform: "translate(-50%, -50%)",
+        width: 500, height: 500, borderRadius: "50%",
+        background: "radial-gradient(circle, rgba(59,130,246,0.1) 0%, transparent 70%)",
+        filter: "blur(80px)", pointerEvents: "none",
+      }} />
+
+      <div style={{ position: "relative", zIndex: 10, textAlign: "center", maxWidth: 420 }}>
+        <div style={{ fontSize: 56, marginBottom: 20 }}>{"\u26bd"}</div>
+
+        <h1 className="font-display" style={{
+          fontSize: 48, letterSpacing: "0.02em", textTransform: "uppercase",
+          marginBottom: 12, lineHeight: 1,
+        }}>
+          <span style={{ color: "var(--text-primary)" }}>GAM</span>
+          <span style={{ color: "var(--accent)" }}>BIT</span>
+        </h1>
+
+        <p className="font-display" style={{
+          fontSize: 12, letterSpacing: "0.12em", color: "var(--text-muted)",
+          marginBottom: 28,
+        }}>
+          AI PREDICTION MARKETS ON LIMITLESS EXCHANGE
+        </p>
+
+        <p style={{
+          fontSize: 15, color: "var(--text-secondary)", lineHeight: 1.7,
+          marginBottom: 40,
+        }}>
+          Bet on football, crypto, and politics by chatting.
+          Connect your wallet on Base to get started.
+        </p>
+
+        <button onClick={onConnect} className="font-display" style={{
+          fontSize: 14, letterSpacing: "0.08em", padding: "16px 40px",
+          background: "var(--accent)", borderRadius: 10, color: "#fff",
+          boxShadow: "0 20px 60px -28px rgba(59,130,246,0.4)",
+          marginBottom: 24,
+        }}>
+          CONNECT WALLET
+        </button>
+
+        <div style={{
+          display: "flex", gap: 24, justifyContent: "center", marginTop: 8,
+        }}>
+          <a href="/" className="font-display" style={{
+            fontSize: 10, letterSpacing: "0.08em", color: "var(--text-muted)",
+          }}>
+            BACK TO HOME
+          </a>
+          <a href="https://limitless.exchange" target="_blank" rel="noopener" className="font-display" style={{
+            fontSize: 10, letterSpacing: "0.08em", color: "var(--text-muted)",
+          }}>
+            LIMITLESS EXCHANGE
+          </a>
+        </div>
+
+        <p style={{
+          fontSize: 11, color: "rgba(168,175,188,0.5)", marginTop: 40,
+          lineHeight: 1.5,
+        }}>
+          Your wallet stays on your device. Gambit never sees your keys.
+          Powered by Aomi SDK.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+// =============================================================================
+// Chat Interface (after wallet connection)
+// =============================================================================
+
+function ChatInterface({ walletAddress, onDisconnect }: { walletAddress: string; onDisconnect: () => void }) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
-  const [walletConnected, setWalletConnected] = useState(false);
-  const [walletAddress, setWalletAddress] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -112,44 +176,16 @@ export default function ChatPage() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isTyping]);
 
-  const connectWallet = useCallback(() => {
-    // Simulate wallet connection
-    setWalletConnected(true);
-    setWalletAddress("0x742d...5f8e");
-    setMessages((prev) => [
-      ...prev,
-      {
-        role: "assistant",
-        content: "Wallet connected: 0x742d...5f8e\n\nYou're ready to bet. Try \"What football matches can I bet on?\" to see available markets, or \"Bet $10 on Argentina\" to place a bet.",
-      },
-    ]);
+  const sendMessage = useCallback((text: string) => {
+    setMessages((prev) => [...prev, { role: "user", content: text }]);
+    setInput("");
+    setIsTyping(true);
+    setTimeout(() => {
+      setMessages((prev) => [...prev, getResponse(text)]);
+      setIsTyping(false);
+      inputRef.current?.focus();
+    }, 600 + Math.random() * 800);
   }, []);
-
-  const disconnectWallet = useCallback(() => {
-    setWalletConnected(false);
-    setWalletAddress(null);
-    setMessages((prev) => [
-      ...prev,
-      {
-        role: "assistant",
-        content: "Wallet disconnected. You can still browse markets, but you'll need to reconnect to place bets.",
-      },
-    ]);
-  }, []);
-
-  const sendMessage = useCallback(
-    (text: string) => {
-      setMessages((prev) => [...prev, { role: "user", content: text }]);
-      setInput("");
-      setIsTyping(true);
-      setTimeout(() => {
-        setMessages((prev) => [...prev, getResponse(text, walletConnected)]);
-        setIsTyping(false);
-        inputRef.current?.focus();
-      }, 600 + Math.random() * 800);
-    },
-    [walletConnected]
-  );
 
   const handleSend = useCallback(() => {
     const text = input.trim();
@@ -182,39 +218,21 @@ export default function ChatPage() {
           <div>
             <div className="font-display" style={{ fontSize: 15, letterSpacing: "0.04em" }}>GAMBIT</div>
             <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-              <span style={{
-                width: 5, height: 5, borderRadius: "50%",
-                background: walletConnected ? "var(--turf)" : "var(--text-muted)",
-              }} />
-              <span style={{
-                fontSize: 10,
-                color: walletConnected ? "var(--turf)" : "var(--text-muted)",
-              }}>
-                {walletConnected ? `${walletAddress}` : "Not connected"}
+              <span style={{ width: 5, height: 5, borderRadius: "50%", background: "var(--turf)" }} />
+              <span style={{ fontSize: 10, color: "var(--turf)", fontFamily: "monospace" }}>
+                {walletAddress}
               </span>
             </div>
           </div>
         </div>
         <div style={{ display: "flex", gap: 8 }}>
-          {walletConnected ? (
-            <button onClick={disconnectWallet} className="font-display" style={{
-              fontSize: 11, letterSpacing: "0.06em", padding: "8px 16px",
-              border: "1px solid var(--red-alert)", background: "rgba(255,61,87,0.1)",
-              borderRadius: 8, color: "var(--red-alert)",
-            }}>
-              DISCONNECT
-            </button>
-          ) : (
-            <button onClick={connectWallet} className="font-display" style={{
-              fontSize: 11, letterSpacing: "0.06em", padding: "8px 16px",
-              background: "var(--accent)", borderRadius: 8, color: "#fff",
-            }}>
-              CONNECT WALLET
-            </button>
-          )}
-          <a href="/" className="font-display" style={{ fontSize: 11, letterSpacing: "0.08em", color: "var(--text-muted)", padding: "8px 14px" }}>
-            BACK
-          </a>
+          <button onClick={onDisconnect} className="font-display" style={{
+            fontSize: 11, letterSpacing: "0.06em", padding: "8px 16px",
+            border: "1px solid var(--border-default)", background: "rgba(14,20,32,0.5)",
+            borderRadius: 8, color: "var(--text-muted)",
+          }}>
+            DISCONNECT
+          </button>
         </div>
       </header>
 
@@ -222,21 +240,16 @@ export default function ChatPage() {
       <div style={{ flex: 1, overflow: "auto", padding: 20 }}>
         <div style={{ maxWidth: 600, margin: "0 auto", display: "flex", flexDirection: "column", gap: 12 }}>
           {messages.length === 0 && (
-            <div style={{ padding: "80px 0", textAlign: "center" }}>
+            <div style={{ padding: "60px 0", textAlign: "center" }}>
               <div style={{ fontSize: 48, marginBottom: 12 }}>{"\u26bd"}</div>
               <p className="font-display" style={{ fontSize: 11, letterSpacing: "0.12em", color: "var(--text-muted)", marginBottom: 16 }}>AI PREDICTION MARKETS</p>
-              <h2 className="font-display" style={{ fontSize: 32, letterSpacing: "0.02em", textTransform: "uppercase", marginBottom: 10 }}>
-                <span style={{ color: "var(--text-primary)" }}>WELCOME TO </span>
-                <span style={{ color: "var(--accent)" }}>GAMBIT</span>
+              <h2 className="font-display" style={{ fontSize: 28, letterSpacing: "0.02em", textTransform: "uppercase", marginBottom: 10 }}>
+                <span style={{ color: "var(--text-primary)" }}>READY TO </span>
+                <span style={{ color: "var(--accent)" }}>PREDICT</span>
               </h2>
-              <p style={{ fontSize: 14, color: "var(--text-secondary)", maxWidth: 380, margin: "0 auto 12px", lineHeight: 1.7 }}>
-                Ask about markets, get odds analysis, or place a bet &mdash; all by chatting.
+              <p style={{ fontSize: 14, color: "var(--text-secondary)", maxWidth: 380, margin: "0 auto 36px", lineHeight: 1.7 }}>
+                Ask about markets, analyze odds, or place a bet &mdash; all by chatting.
               </p>
-              {!walletConnected && (
-                <p style={{ fontSize: 12, color: "var(--text-muted)", maxWidth: 320, margin: "0 auto 36px", lineHeight: 1.6 }}>
-                  Connect your wallet to place bets and view positions. Market discovery works without a wallet.
-                </p>
-              )}
               <div style={{ display: "flex", flexWrap: "wrap", gap: 8, justifyContent: "center" }}>
                 {quickPrompts.map((q) => (
                   <button key={q} onClick={() => sendMessage(q)} className="font-display" style={{
@@ -344,10 +357,35 @@ export default function ChatPage() {
             </button>
           </div>
           <p className="font-display" style={{ textAlign: "center", fontSize: 10, color: "var(--text-muted)", marginTop: 8, letterSpacing: "0.08em" }}>
-            GAMBIT \u00b7 DEMO MODE \u00b7 BUILT WITH AOMI SDK
+            GAMBIT \u00b7 POWERED BY AOMI SDK \u00b7 LIMITLESS EXCHANGE
           </p>
         </div>
       </div>
     </div>
   );
+}
+
+// =============================================================================
+// Page — wallet gate then chat
+// =============================================================================
+
+export default function ChatPage() {
+  const [walletConnected, setWalletConnected] = useState(false);
+  const [walletAddress, setWalletAddress] = useState<string | null>(null);
+
+  const connectWallet = useCallback(() => {
+    setWalletConnected(true);
+    setWalletAddress("0x742d35Cc6634C0532925a3b844Bc9e7595f0bEB1");
+  }, []);
+
+  const disconnectWallet = useCallback(() => {
+    setWalletConnected(false);
+    setWalletAddress(null);
+  }, []);
+
+  if (!walletConnected || !walletAddress) {
+    return <WalletGate onConnect={connectWallet} />;
+  }
+
+  return <ChatInterface walletAddress={walletAddress} onDisconnect={disconnectWallet} />;
 }
