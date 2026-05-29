@@ -94,8 +94,8 @@ function ChatInterface({ address, onDisconnect }: { address: string; onDisconnec
       console.log("[Gambit] Sending:", text);
       if (!currentThreadId) {
         console.log("[Gambit] No thread, creating...");
-        const threadId = await createThread();
-        console.log("[Gambit] Thread created:", threadId);
+        await createThread();
+        console.log("[Gambit] Thread created");
       }
       await sendMessage(text);
       console.log("[Gambit] Message sent");
