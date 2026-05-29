@@ -56,7 +56,7 @@ function ChatInterface() {
                 fontSize: 10,
                 color: connectionError ? "var(--red-alert)" : "var(--turf)",
               }}>
-                {connectionError ? "Connection connectionError" : "Connected to Aomi"}
+                {connectionError ? "Connection error" : "Connected to Aomi"}
               </span>
             </div>
           </div>
@@ -72,7 +72,7 @@ function ChatInterface() {
           padding: "12px 20px", background: "rgba(255,61,87,0.1)",
           borderBottom: "1px solid rgba(255,61,87,0.2)", fontSize: 13, color: "var(--red-alert)",
         }}>
-          <strong>Aomi connection connectionError:</strong> {typeof connectionError === "string" ? connectionError : connectionError.message || "Could not connect to Aomi backend. The app may not be activated yet."}
+          <strong>Aomi connection error:</strong> {connectionError || "Could not connect to Aomi backend. The app may not be activated yet."}
         </div>
       )}
 
