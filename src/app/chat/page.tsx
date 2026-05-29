@@ -1,25 +1,36 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
-import { getDefaultConfig, RainbowKitProvider, ConnectButton, darkTheme } from "@rainbow-me/rainbowkit";
-import { WagmiProvider, useAccount, useDisconnect } from "wagmi";
-import { base } from "wagmi/chains";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { http } from "viem";
-import "@rainbow-me/rainbowkit/styles.css";
 
 // =============================================================================
-// Config
+// Simple wallet connection via window.ethereum (MetaMask / Coinbase)
 // =============================================================================
 
-const config = getDefaultConfig({
-  appName: "Gambit",
-  projectId: "demo", // WalletConnect project ID — replace for production
-  chains: [base],
-  transports: { [base.id]: http() },
-});
+function useWallet() {
+  const [address, setAddress] = useState<string | null>(null);
+  const [connecting, setConnecting] = useState(false);
 
-const queryClient = new QueryClient();
+  const connect = useCallback(async () => {
+    if (typeof window === "undefined" || !(window as any).ethereum) {
+      alert("Please install MetaMask or Coinbase Wallet to connect.");
+      return;
+    }
+    setConnecting(true);
+    try {
+      const accounts = await (window as any).ethereum.request({ method: "eth_requestAccounts" });
+      if (accounts?.[0]) setAddress(accounts[0]);
+    } catch (e: any) {
+      console.error("Wallet connection failed:", e);
+    }
+    setConnecting(false);
+  }, []);
+
+  const disconnect = useCallback(() => {
+    setAddress(null);
+  }, []);
+
+  return { address, connecting, connect, disconnect };
+}
 
 // =============================================================================
 // Mock responses
@@ -107,7 +118,7 @@ function getResponse(input: string): Message {
 // Wallet Gate
 // =============================================================================
 
-function WalletGate() {
+function WalletGate({ onConnect, connecting }: { onConnect: () => void; connecting: boolean }) {
   return (
     <div className="noise" style={{
       height: "100vh", display: "flex", flexDirection: "column",
@@ -133,15 +144,22 @@ function WalletGate() {
           Bet on football, crypto, and politics by chatting.
           Connect your wallet on Base to get started.
         </p>
-        <div style={{ display: "flex", justifyContent: "center", marginBottom: 24 }}>
-          <ConnectButton />
+        <button onClick={onConnect} disabled={connecting} className="font-display" style={{
+          fontSize: 14, letterSpacing: "0.08em", padding: "16px 40px",
+          background: "var(--accent)", borderRadius: 10, color: "#fff",
+          boxShadow: "0 20px 60px -28px rgba(59,130,246,0.4)", marginBottom: 24,
+          opacity: connecting ? 0.6 : 1,
+        }}>
+          {connecting ? "CONNECTING..." : "CONNECT WALLET"}
+        </button>
+        <div style={{ display: "flex", gap: 24, justifyContent: "center", marginTop: 8 }}>
+          <a href="/" className="font-display" style={{ fontSize: 10, letterSpacing: "0.08em", color: "var(--text-muted)" }}>
+            BACK TO HOME
+          </a>
         </div>
-        <a href="/" className="font-display" style={{ fontSize: 10, letterSpacing: "0.08em", color: "var(--text-muted)" }}>
-          BACK TO HOME
-        </a>
         <p style={{ fontSize: 11, color: "rgba(168,175,188,0.5)", marginTop: 40, lineHeight: 1.5 }}>
+          Supports MetaMask, Coinbase Wallet, and any EIP-1193 wallet.
           Your wallet stays on your device. Gambit never sees your keys.
-          Powered by Aomi SDK.
         </p>
       </div>
     </div>
@@ -152,9 +170,7 @@ function WalletGate() {
 // Chat Interface
 // =============================================================================
 
-function ChatInterface() {
-  const { address } = useAccount();
-  const { disconnect } = useDisconnect();
+function ChatInterface({ address, onDisconnect }: { address: string; onDisconnect: () => void }) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
@@ -182,7 +198,7 @@ function ChatInterface() {
     sendMessage(text);
   }, [input, isTyping, sendMessage]);
 
-  const shortAddr = address ? `${address.slice(0, 6)}...${address.slice(-4)}` : "Connected";
+  const shortAddr = `${address.slice(0, 6)}...${address.slice(-4)}`;
 
   const quickPrompts = [
     "What football matches can I bet on?",
@@ -193,7 +209,6 @@ function ChatInterface() {
 
   return (
     <div className="noise" style={{ height: "100vh", display: "flex", flexDirection: "column", background: "var(--bg-base)", color: "var(--text-primary)" }}>
-      {/* Header */}
       <header style={{
         display: "flex", alignItems: "center", justifyContent: "space-between",
         padding: "14px 20px", borderBottom: "1px solid var(--border-subtle)",
@@ -211,12 +226,13 @@ function ChatInterface() {
             </div>
           </div>
         </div>
-        <div style={{ display: "flex", gap: 8 }}>
-          <ConnectButton showBalance={false} chainStatus="none" />
-        </div>
+        <button onClick={onDisconnect} className="font-display" style={{
+          fontSize: 11, letterSpacing: "0.06em", padding: "8px 16px",
+          border: "1px solid var(--border-default)", background: "rgba(14,20,32,0.5)",
+          borderRadius: 8, color: "var(--text-muted)",
+        }}>DISCONNECT</button>
       </header>
 
-      {/* Messages */}
       <div style={{ flex: 1, overflow: "auto", padding: 20 }}>
         <div style={{ maxWidth: 600, margin: "0 auto", display: "flex", flexDirection: "column", gap: 12 }}>
           {messages.length === 0 && (
@@ -286,7 +302,6 @@ function ChatInterface() {
         </div>
       </div>
 
-      {/* Input */}
       <div style={{ padding: "14px 20px", borderTop: "1px solid var(--border-subtle)", background: "rgba(8,12,16,0.85)" }}>
         <div style={{ maxWidth: 600, margin: "0 auto" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10, background: "var(--bg-card)", border: "1px solid var(--border-default)", borderRadius: 12, padding: "12px 16px" }}>
@@ -319,24 +334,15 @@ function ChatInterface() {
 }
 
 // =============================================================================
-// App — providers + gate
+// Page
 // =============================================================================
 
-function AppGate() {
-  const { isConnected } = useAccount();
-
-  if (!isConnected) return <WalletGate />;
-  return <ChatInterface />;
-}
-
 export default function ChatPage() {
-  return (
-    <WagmiProvider config={config}>
-      <QueryClientProvider client={queryClient}>
-        <RainbowKitProvider theme={darkTheme({ accentColor: "#3b82f6", accentColorForeground: "white" })}>
-          <AppGate />
-        </RainbowKitProvider>
-      </QueryClientProvider>
-    </WagmiProvider>
-  );
+  const { address, connecting, connect, disconnect } = useWallet();
+
+  if (!address) {
+    return <WalletGate onConnect={connect} connecting={connecting} />;
+  }
+
+  return <ChatInterface address={address} onDisconnect={disconnect} />;
 }
