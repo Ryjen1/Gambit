@@ -17,6 +17,7 @@
     "@tanstack/react-query": "^5.100.14",
     "@types/lodash": "^4.17.24",
     "next": "^15.5.18",
+    "ox": "^0.14.25",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
     "viem": "^2.51.2",
