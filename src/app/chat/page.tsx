@@ -1,6 +1,29 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
+import { getDefaultConfig, RainbowKitProvider, ConnectButton, darkTheme } from "@rainbow-me/rainbowkit";
+import { WagmiProvider, useAccount, useDisconnect } from "wagmi";
+import { base } from "wagmi/chains";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { http } from "viem";
+import "@rainbow-me/rainbowkit/styles.css";
+
+// =============================================================================
+// Config
+// =============================================================================
+
+const config = getDefaultConfig({
+  appName: "Gambit",
+  projectId: "demo", // WalletConnect project ID — replace for production
+  chains: [base],
+  transports: { [base.id]: http() },
+});
+
+const queryClient = new QueryClient();
+
+// =============================================================================
+// Mock responses
+// =============================================================================
 
 interface Message {
   role: "user" | "assistant";
@@ -53,7 +76,7 @@ function getResponse(input: string): Message {
         shares: "14.08",
         cost: "$10.00 USDC",
         potential: "$14.08 if Argentina wins (+40.8%)",
-        "risk": "Thin liquidity \u2014 order may not fill entirely.",
+        risk: "Thin liquidity \u2014 order may not fill entirely.",
       },
     };
   }
@@ -80,11 +103,61 @@ function getResponse(input: string): Message {
   };
 }
 
-export default function ChatPage() {
+// =============================================================================
+// Wallet Gate
+// =============================================================================
+
+function WalletGate() {
+  return (
+    <div className="noise" style={{
+      height: "100vh", display: "flex", flexDirection: "column",
+      alignItems: "center", justifyContent: "center",
+      background: "var(--bg-base)", color: "var(--text-primary)", padding: 24,
+    }}>
+      <div style={{
+        position: "absolute", left: "50%", top: "40%", transform: "translate(-50%, -50%)",
+        width: 500, height: 500, borderRadius: "50%",
+        background: "radial-gradient(circle, rgba(59,130,246,0.1) 0%, transparent 70%)",
+        filter: "blur(80px)", pointerEvents: "none",
+      }} />
+      <div style={{ position: "relative", zIndex: 10, textAlign: "center", maxWidth: 420 }}>
+        <div style={{ fontSize: 56, marginBottom: 20 }}>{"\u26bd"}</div>
+        <h1 className="font-display" style={{ fontSize: 48, letterSpacing: "0.02em", textTransform: "uppercase", marginBottom: 12, lineHeight: 1 }}>
+          <span style={{ color: "var(--text-primary)" }}>GAM</span>
+          <span style={{ color: "var(--accent)" }}>BIT</span>
+        </h1>
+        <p className="font-display" style={{ fontSize: 12, letterSpacing: "0.12em", color: "var(--text-muted)", marginBottom: 28 }}>
+          AI PREDICTION MARKETS ON LIMITLESS EXCHANGE
+        </p>
+        <p style={{ fontSize: 15, color: "var(--text-secondary)", lineHeight: 1.7, marginBottom: 40 }}>
+          Bet on football, crypto, and politics by chatting.
+          Connect your wallet on Base to get started.
+        </p>
+        <div style={{ display: "flex", justifyContent: "center", marginBottom: 24 }}>
+          <ConnectButton />
+        </div>
+        <a href="/" className="font-display" style={{ fontSize: 10, letterSpacing: "0.08em", color: "var(--text-muted)" }}>
+          BACK TO HOME
+        </a>
+        <p style={{ fontSize: 11, color: "rgba(168,175,188,0.5)", marginTop: 40, lineHeight: 1.5 }}>
+          Your wallet stays on your device. Gambit never sees your keys.
+          Powered by Aomi SDK.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+// =============================================================================
+// Chat Interface
+// =============================================================================
+
+function ChatInterface() {
+  const { address } = useAccount();
+  const { disconnect } = useDisconnect();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
-  const [walletConnected, setWalletConnected] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -109,6 +182,8 @@ export default function ChatPage() {
     sendMessage(text);
   }, [input, isTyping, sendMessage]);
 
+  const shortAddr = address ? `${address.slice(0, 6)}...${address.slice(-4)}` : "Connected";
+
   const quickPrompts = [
     "What football matches can I bet on?",
     "Bet $10 on Argentina to beat Algeria",
@@ -116,56 +191,9 @@ export default function ChatPage() {
     "Will ETH hit $5K by year end?",
   ];
 
-  // Wallet gate
-  if (!walletConnected) {
-    return (
-      <div className="noise" style={{
-        height: "100vh", display: "flex", flexDirection: "column",
-        alignItems: "center", justifyContent: "center",
-        background: "var(--bg-base)", color: "var(--text-primary)", padding: 24,
-      }}>
-        <div style={{
-          position: "absolute", left: "50%", top: "40%", transform: "translate(-50%, -50%)",
-          width: 500, height: 500, borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(59,130,246,0.1) 0%, transparent 70%)",
-          filter: "blur(80px)", pointerEvents: "none",
-        }} />
-        <div style={{ position: "relative", zIndex: 10, textAlign: "center", maxWidth: 420 }}>
-          <div style={{ fontSize: 56, marginBottom: 20 }}>{"\u26bd"}</div>
-          <h1 className="font-display" style={{ fontSize: 48, letterSpacing: "0.02em", textTransform: "uppercase", marginBottom: 12, lineHeight: 1 }}>
-            <span style={{ color: "var(--text-primary)" }}>GAM</span>
-            <span style={{ color: "var(--accent)" }}>BIT</span>
-          </h1>
-          <p className="font-display" style={{ fontSize: 12, letterSpacing: "0.12em", color: "var(--text-muted)", marginBottom: 28 }}>
-            AI PREDICTION MARKETS ON LIMITLESS EXCHANGE
-          </p>
-          <p style={{ fontSize: 15, color: "var(--text-secondary)", lineHeight: 1.7, marginBottom: 40 }}>
-            Bet on football, crypto, and politics by chatting.
-            Connect your wallet to get started.
-          </p>
-          <button onClick={() => setWalletConnected(true)} className="font-display" style={{
-            fontSize: 14, letterSpacing: "0.08em", padding: "16px 40px",
-            background: "var(--accent)", borderRadius: 10, color: "#fff",
-            boxShadow: "0 20px 60px -28px rgba(59,130,246,0.4)", marginBottom: 24,
-          }}>
-            CONNECT WALLET
-          </button>
-          <div style={{ display: "flex", gap: 24, justifyContent: "center", marginTop: 8 }}>
-            <a href="/" className="font-display" style={{ fontSize: 10, letterSpacing: "0.08em", color: "var(--text-muted)" }}>
-              BACK TO HOME
-            </a>
-          </div>
-          <p style={{ fontSize: 11, color: "rgba(168,175,188,0.5)", marginTop: 40, lineHeight: 1.5 }}>
-            Your wallet stays on your device. Gambit never sees your keys.
-          </p>
-        </div>
-      </div>
-    );
-  }
-
-  // Chat interface
   return (
     <div className="noise" style={{ height: "100vh", display: "flex", flexDirection: "column", background: "var(--bg-base)", color: "var(--text-primary)" }}>
+      {/* Header */}
       <header style={{
         display: "flex", alignItems: "center", justifyContent: "space-between",
         padding: "14px 20px", borderBottom: "1px solid var(--border-subtle)",
@@ -179,17 +207,16 @@ export default function ChatPage() {
             <div className="font-display" style={{ fontSize: 15, letterSpacing: "0.04em" }}>GAMBIT</div>
             <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
               <span style={{ width: 5, height: 5, borderRadius: "50%", background: "var(--turf)" }} />
-              <span style={{ fontSize: 10, color: "var(--turf)", fontFamily: "monospace" }}>0x742d...5f8e</span>
+              <span style={{ fontSize: 10, color: "var(--turf)", fontFamily: "monospace" }}>{shortAddr}</span>
             </div>
           </div>
         </div>
-        <button onClick={() => { setWalletConnected(false); setMessages([]); }} className="font-display" style={{
-          fontSize: 11, letterSpacing: "0.06em", padding: "8px 16px",
-          border: "1px solid var(--border-default)", background: "rgba(14,20,32,0.5)",
-          borderRadius: 8, color: "var(--text-muted)",
-        }}>DISCONNECT</button>
+        <div style={{ display: "flex", gap: 8 }}>
+          <ConnectButton showBalance={false} chainStatus="none" />
+        </div>
       </header>
 
+      {/* Messages */}
       <div style={{ flex: 1, overflow: "auto", padding: 20 }}>
         <div style={{ maxWidth: 600, margin: "0 auto", display: "flex", flexDirection: "column", gap: 12 }}>
           {messages.length === 0 && (
@@ -259,6 +286,7 @@ export default function ChatPage() {
         </div>
       </div>
 
+      {/* Input */}
       <div style={{ padding: "14px 20px", borderTop: "1px solid var(--border-subtle)", background: "rgba(8,12,16,0.85)" }}>
         <div style={{ maxWidth: 600, margin: "0 auto" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10, background: "var(--bg-card)", border: "1px solid var(--border-default)", borderRadius: 12, padding: "12px 16px" }}>
@@ -287,5 +315,28 @@ export default function ChatPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+// =============================================================================
+// App — providers + gate
+// =============================================================================
+
+function AppGate() {
+  const { isConnected } = useAccount();
+
+  if (!isConnected) return <WalletGate />;
+  return <ChatInterface />;
+}
+
+export default function ChatPage() {
+  return (
+    <WagmiProvider config={config}>
+      <QueryClientProvider client={queryClient}>
+        <RainbowKitProvider theme={darkTheme({ accentColor: "#3b82f6", accentColorForeground: "white" })}>
+          <AppGate />
+        </RainbowKitProvider>
+      </QueryClientProvider>
+    </WagmiProvider>
   );
 }
