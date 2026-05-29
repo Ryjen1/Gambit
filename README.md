@@ -17,8 +17,8 @@ User types "Bet $10 on Argentina"
          │
          ▼
 ┌─────────────────────────┐
-│  Privy (wallet)         │  User signed in via email/Google/wallet
-│  Handles: signing       │  Privy holds the session key
+│  Wallet (MetaMask /     │  User connects via browser wallet
+│  Coinbase Wallet)       │  EIP-1193 eth_requestAccounts
 └────────┬────────────────┘
          │
          ▼
@@ -47,7 +47,7 @@ User types "Bet $10 on Argentina"
          ▼
 ┌─────────────────────────┐
 │  evm-core (namespace)   │  Aomi's wallet execution layer
-│  1. Approve USDC spend  │  Uses Privy session key to sign
+│  1. Approve USDC spend  │  Uses user's wallet to sign
 │  2. Submit order to     │  Transactions go to Base L2
 │     Limitless CLOB      │
 │  3. Return tx hash      │
@@ -73,7 +73,7 @@ User types "Bet $10 on Argentina"
 | **LLM** | — | Claude Sonnet | — |
 | **Smart contracts** | — | — | CLOB on Base |
 
-We never touch the chain directly. Our plugin calls HTTP APIs. When a real bet happens, Aomi's `evm-core` namespace handles the on-chain transaction using the user's Privy session key.
+We never touch the chain directly. Our plugin calls HTTP APIs. When a real bet happens, Aomi's `evm-core` namespace handles the on-chain transaction using the user's wallet.
 
 ## How Gambit Uses Aomi SDK
 
@@ -174,8 +174,6 @@ cd Gambit
 
 # Frontend
 npm install
-cp .env.example .env.local
-# Fill in NEXT_PUBLIC_PRIVY_APP_ID from https://privy.io
 npm run dev
 # http://localhost:3456
 
@@ -188,7 +186,6 @@ cargo check
 
 | Variable | Required | Description |
 |---|---|---|
-| `NEXT_PUBLIC_PRIVY_APP_ID` | Yes | Get free at [privy.io](https://privy.io) |
 | `NEXT_PUBLIC_AOMI_BACKEND_URL` | No | Default: `https://staging-api.aomi.dev` |
 | `ODDS_API_KEY` | Plugin | Free at the-odds-api.com (Aomi secret) |
 | `LIMITLESS_API_KEY` | Plugin | From limitless.exchange (Aomi secret) |
@@ -198,7 +195,7 @@ cargo check
 
 | Layer | Technology |
 |---|---|
-| Wallet | Privy (email/Google/wallet login, non-custodial) |
+| Wallet | MetaMask / Coinbase Wallet (EIP-1193, non-custodial) |
 | Frontend | Next.js 15, React 19, TypeScript |
 | AI Runtime | Aomi (hosted) — Claude Sonnet |
 | Plugin | Rust, aomi-sdk, reqwest, serde_json, hmac, sha2 |
