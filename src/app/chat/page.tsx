@@ -1,10 +1,7 @@
 "use client";
 
+import { AomiRuntimeProvider, useAomiRuntime, useCurrentThreadMessages } from "@aomi-labs/react";
 import { useState, useRef, useEffect, useCallback } from "react";
-
-// =============================================================================
-// Simple wallet connection via window.ethereum (MetaMask / Coinbase)
-// =============================================================================
 
 function useWallet() {
   const [address, setAddress] = useState<string | null>(null);
@@ -12,111 +9,20 @@ function useWallet() {
 
   const connect = useCallback(async () => {
     if (typeof window === "undefined" || !(window as any).ethereum) {
-      alert("Please install MetaMask or Coinbase Wallet to connect.");
+      alert("Please install MetaMask or Coinbase Wallet.");
       return;
     }
     setConnecting(true);
     try {
       const accounts = await (window as any).ethereum.request({ method: "eth_requestAccounts" });
       if (accounts?.[0]) setAddress(accounts[0]);
-    } catch (e: any) {
-      console.error("Wallet connection failed:", e);
-    }
+    } catch (e) { console.error(e); }
     setConnecting(false);
   }, []);
 
-  const disconnect = useCallback(() => {
-    setAddress(null);
-  }, []);
-
+  const disconnect = useCallback(() => setAddress(null), []);
   return { address, connecting, connect, disconnect };
 }
-
-// =============================================================================
-// Mock responses
-// =============================================================================
-
-interface Message {
-  role: "user" | "assistant";
-  content: string;
-  table?: { match: string; yes: string; no: string }[];
-  receipt?: Record<string, string>;
-}
-
-function getResponse(input: string): Message {
-  const lower = input.toLowerCase().trim();
-
-  if (lower.includes("football") || lower.includes("soccer") || lower.includes("world cup") || lower === "what football matches can i bet on?") {
-    return {
-      role: "assistant",
-      content: "Here are the upcoming FIFA World Cup 2026 matches on Limitless:",
-      table: [
-        { match: "Mexico vs South Africa (Jun 11)", yes: "67%", no: "14%" },
-        { match: "South Korea vs Czech Republic (Jun 12)", yes: "37%", no: "36%" },
-        { match: "Canada vs Bosnia & Herzegovina (Jun 12)", yes: "54%", no: "23%" },
-        { match: "Argentina vs Algeria (Jun 17)", yes: "71%", no: "12%" },
-        { match: "Germany vs Curacao (Jun 14)", yes: "94%", no: "5%" },
-      ],
-    };
-  }
-
-  if (lower.includes("eth") || lower.includes("bitcoin") || lower.includes("crypto") || lower === "will eth hit $5k by year end?") {
-    return {
-      role: "assistant",
-      content: "Found a market: \"Will ETH be above $5,000 by EOY 2026\"",
-      receipt: {
-        market: "ETH above $5,000 by EOY",
-        yes: "23% ($0.23/share)",
-        no: "77% ($0.77/share)",
-        volume: "$142,850",
-        liquidity: "$38,200",
-        expires: "Dec 31, 2026",
-        analysis: "94% rally needed. 23% fair for bull cycle.",
-      },
-    };
-  }
-
-  if (lower.includes("bet") || lower.includes("buy") || lower.includes("wager") || lower === "bet $10 on argentina to beat algeria") {
-    return {
-      role: "assistant",
-      content: "Order preview \u2014 please confirm:",
-      receipt: {
-        market: "Argentina vs Algeria \u2014 Jun 17",
-        side: "BUY YES",
-        price: "$0.71",
-        shares: "14.08",
-        cost: "$10.00 USDC",
-        potential: "$14.08 if Argentina wins (+40.8%)",
-        risk: "Thin liquidity \u2014 order may not fill entirely.",
-      },
-    };
-  }
-
-  if (lower.includes("position") || lower.includes("portfolio") || lower === "show my positions") {
-    return {
-      role: "assistant",
-      content: "Your open positions on Limitless:",
-      receipt: {
-        "position 1": "Argentina vs Algeria YES @ $0.71",
-        "  14.08 shares": "Cost: $10.00 | P&L: +$1.26",
-        "position 2": "Germany vs Curacao YES @ $0.94",
-        "  21.28 shares": "Cost: $20.00 | P&L: +$0.85",
-        "total invested": "$30.00",
-        "total value": "$32.11",
-        "total p&l": "+$2.11",
-      },
-    };
-  }
-
-  return {
-    role: "assistant",
-    content: "Try asking:\n\u2022 \"What football matches can I bet on?\"\n\u2022 \"Bet $10 on Argentina to beat Algeria\"\n\u2022 \"Show my positions\"\n\u2022 \"Will ETH hit $5K by year end?\"",
-  };
-}
-
-// =============================================================================
-// Wallet Gate
-// =============================================================================
 
 function WalletGate({ onConnect, connecting }: { onConnect: () => void; connecting: boolean }) {
   return (
@@ -153,50 +59,34 @@ function WalletGate({ onConnect, connecting }: { onConnect: () => void; connecti
           {connecting ? "CONNECTING..." : "CONNECT WALLET"}
         </button>
         <div style={{ display: "flex", gap: 24, justifyContent: "center", marginTop: 8 }}>
-          <a href="/" className="font-display" style={{ fontSize: 10, letterSpacing: "0.08em", color: "var(--text-muted)" }}>
-            BACK TO HOME
-          </a>
+          <a href="/" className="font-display" style={{ fontSize: 10, letterSpacing: "0.08em", color: "var(--text-muted)" }}>BACK TO HOME</a>
         </div>
         <p style={{ fontSize: 11, color: "rgba(168,175,188,0.5)", marginTop: 40, lineHeight: 1.5 }}>
-          Supports MetaMask, Coinbase Wallet, and any EIP-1193 wallet.
-          Your wallet stays on your device. Gambit never sees your keys.
+          Supports MetaMask, Coinbase Wallet. Your wallet stays on your device.
         </p>
       </div>
     </div>
   );
 }
 
-// =============================================================================
-// Chat Interface
-// =============================================================================
-
 function ChatInterface({ address, onDisconnect }: { address: string; onDisconnect: () => void }) {
-  const [messages, setMessages] = useState<Message[]>([]);
+  const { isRunning, sendMessage } = useAomiRuntime();
+  const messages = useCurrentThreadMessages();
   const [input, setInput] = useState("");
-  const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, isTyping]);
-
-  const sendMessage = useCallback((text: string) => {
-    setMessages((prev) => [...prev, { role: "user", content: text }]);
-    setInput("");
-    setIsTyping(true);
-    setTimeout(() => {
-      setMessages((prev) => [...prev, getResponse(text)]);
-      setIsTyping(false);
-      inputRef.current?.focus();
-    }, 600 + Math.random() * 800);
-  }, []);
+  }, [messages, isRunning]);
 
   const handleSend = useCallback(() => {
     const text = input.trim();
-    if (!text || isTyping) return;
+    if (!text || isRunning) return;
     sendMessage(text);
-  }, [input, isTyping, sendMessage]);
+    setInput("");
+    inputRef.current?.focus();
+  }, [input, isRunning, sendMessage]);
 
   const shortAddr = `${address.slice(0, 6)}...${address.slice(-4)}`;
 
@@ -258,40 +148,17 @@ function ChatInterface({ address, onDisconnect }: { address: string; onDisconnec
             </div>
           )}
 
-          {messages.map((msg, i) => (
+          {messages.map((msg: any, i: number) => (
             <div key={i} style={{ display: "flex", justifyContent: msg.role === "user" ? "flex-end" : "flex-start" }}>
               <div className={msg.role === "user" ? "chat-bubble-user" : "chat-bubble-bot"} style={{
-                maxWidth: "85%", padding: "14px 18px", fontSize: 14, lineHeight: 1.6,
+                maxWidth: "85%", padding: "14px 18px", fontSize: 14, lineHeight: 1.6, whiteSpace: "pre-wrap",
               }}>
-                {msg.content && <p style={{ margin: 0, whiteSpace: "pre-wrap" }}>{msg.content}</p>}
-                {msg.table && (
-                  <div style={{ marginTop: 10, fontSize: 12 }}>
-                    {msg.table.map((row, j) => (
-                      <div key={j} style={{
-                        display: "flex", justifyContent: "space-between", padding: "4px 0",
-                        borderBottom: j < msg.table!.length - 1 ? "1px solid var(--border-subtle)" : "none",
-                      }}>
-                        <span style={{ color: "var(--text-primary)" }}>{row.match}</span>
-                        <span><span style={{ color: "var(--turf)", marginRight: 8 }}>{row.yes}</span><span style={{ color: "var(--red-alert)" }}>{row.no}</span></span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-                {msg.receipt && (
-                  <div style={{ marginTop: 10, padding: 12, borderRadius: 10, background: "rgba(59,130,246,0.05)", border: "1px solid rgba(59,130,246,0.15)", fontSize: 12 }}>
-                    {Object.entries(msg.receipt).map(([k, v]) => (
-                      <div key={k} style={{ display: "flex", justifyContent: "space-between", padding: "2px 0" }}>
-                        <span style={{ color: "var(--text-muted)" }}>{k}</span>
-                        <span style={{ color: k.includes("p&l") || k.includes("potential") || k === "analysis" || k.includes("risk") ? "var(--turf)" : "var(--text-primary)" }}>{v}</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
+                {typeof msg.content === "string" ? msg.content : msg.content?.map?.((c: any) => c.text || "").join("") || JSON.stringify(msg.content)}
               </div>
             </div>
           ))}
 
-          {isTyping && (
+          {isRunning && (
             <div style={{ display: "flex", justifyContent: "flex-start" }}>
               <div className="chat-bubble-bot" style={{ padding: "16px 22px", display: "flex", gap: 6 }}>
                 <span className="typing-dot" /><span className="typing-dot" /><span className="typing-dot" />
@@ -310,14 +177,14 @@ function ChatInterface({ address, onDisconnect }: { address: string; onDisconnec
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && (e.preventDefault(), handleSend())}
               placeholder="Ask about markets, odds, or place a bet..."
-              disabled={isTyping}
+              disabled={isRunning}
               style={{ flex: 1, background: "transparent", border: "none", outline: "none", fontSize: 14, color: "var(--text-primary)", fontFamily: "monospace" }}
             />
-            <button onClick={handleSend} disabled={!input.trim() || isTyping} style={{
+            <button onClick={handleSend} disabled={!input.trim() || isRunning} style={{
               width: 30, height: 30, borderRadius: 8,
-              background: input.trim() && !isTyping ? "var(--accent)" : "var(--text-muted)",
+              background: input.trim() && !isRunning ? "var(--accent)" : "var(--text-muted)",
               display: "flex", alignItems: "center", justifyContent: "center",
-              opacity: input.trim() && !isTyping ? 1 : 0.4, transition: "all 0.2s",
+              opacity: input.trim() && !isRunning ? 1 : 0.4, transition: "all 0.2s",
             }}>
               <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#fff" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
@@ -333,16 +200,17 @@ function ChatInterface({ address, onDisconnect }: { address: string; onDisconnec
   );
 }
 
-// =============================================================================
-// Page
-// =============================================================================
-
 export default function ChatPage() {
   const { address, connecting, connect, disconnect } = useWallet();
+  const backendUrl = process.env.NEXT_PUBLIC_AOMI_BACKEND_URL || "https://api.aomi.dev";
 
   if (!address) {
     return <WalletGate onConnect={connect} connecting={connecting} />;
   }
 
-  return <ChatInterface address={address} onDisconnect={disconnect} />;
+  return (
+    <AomiRuntimeProvider backendUrl={backendUrl}>
+      <ChatInterface address={address} onDisconnect={disconnect} />
+    </AomiRuntimeProvider>
+  );
 }
