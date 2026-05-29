@@ -152,7 +152,7 @@ function ChatInterface() {
 }
 
 export default function ChatPage() {
-  const backendUrl = process.env.NEXT_PUBLIC_AOMI_BACKEND_URL || "https://api.aomi.dev";
+  const backendUrl = process.env.NEXT_PUBLIC_AOMI_BACKEND_URL || "https://staging-api.aomi.dev";
   return (
     <AomiRuntimeProvider backendUrl={backendUrl}>
       <ChatInterface />
