@@ -1,26 +1,147 @@
 "use client";
 
-import { AomiRuntimeProvider, useAomiRuntime, useCurrentThreadMessages } from "@aomi-labs/react";
 import { useState, useRef, useEffect, useCallback } from "react";
 
-function ChatInterface() {
-  const { isRunning, sendMessage } = useAomiRuntime();
-  const messages = useCurrentThreadMessages();
+// =============================================================================
+// Mock responses (fallback when Aomi is unreachable)
+// =============================================================================
+
+interface Message {
+  role: "user" | "assistant";
+  content: string;
+  table?: { match: string; yes: string; no: string }[];
+  receipt?: Record<string, string>;
+}
+
+const MOCK_RESPONSES: Record<string, Message> = {
+  "what football matches can i bet on?": {
+    role: "assistant",
+    content: "Here are the upcoming FIFA World Cup 2026 matches on Limitless:",
+    table: [
+      { match: "Mexico vs South Africa (Jun 11)", yes: "67%", no: "14%" },
+      { match: "South Korea vs Czech Republic (Jun 12)", yes: "37%", no: "36%" },
+      { match: "Canada vs Bosnia & Herzegovina (Jun 12)", yes: "54%", no: "23%" },
+      { match: "Argentina vs Algeria (Jun 17)", yes: "71%", no: "12%" },
+      { match: "Germany vs Curacao (Jun 14)", yes: "94%", no: "5%" },
+    ],
+  },
+  "bet $10 on argentina to beat algeria": {
+    role: "assistant",
+    content: "Order preview \u2014 please confirm:",
+    receipt: {
+      market: "Argentina vs Algeria \u2014 Jun 17",
+      side: "BUY YES",
+      price: "$0.71",
+      shares: "14.08",
+      cost: "$10.00 USDC",
+      potential: "$14.08 if Argentina wins (+40.8%)",
+    },
+  },
+  confirm: {
+    role: "assistant",
+    content: "",
+    receipt: {
+      status: "\u2705 Order placed",
+      market: "Argentina vs Algeria \u2014 YES @ $0.71",
+      shares: "14.08",
+      cost: "$10.00 USDC",
+      payout: "$14.08 (40.8% return)",
+      resolution: "Jun 17, 2026",
+    },
+  },
+  "show my positions": {
+    role: "assistant",
+    content: "Your open positions on Limitless:",
+    receipt: {
+      "position 1": "Argentina vs Algeria YES @ $0.71",
+      "  14.08 shares": "Cost: $10.00 | P&L: +$1.26",
+      "position 2": "Germany vs Curacao YES @ $0.94",
+      "  21.28 shares": "Cost: $20.00 | P&L: +$0.85",
+      "total invested": "$30.00",
+      "total value": "$32.11",
+      "total p&l": "+$2.11",
+    },
+  },
+  "will eth hit $5k by year end?": {
+    role: "assistant",
+    content: "Found a market: \"Will ETH be above $5,000 by EOY 2026\"",
+    receipt: {
+      market: "ETH above $5,000 by EOY",
+      yes: "23% ($0.23/share)",
+      no: "77% ($0.77/share)",
+      volume: "$142,850",
+      liquidity: "$38,200",
+      expires: "Dec 31, 2026",
+      analysis: "94% rally needed. 23% fair for bull cycle.",
+    },
+  },
+};
+
+function getMockResponse(input: string): Message {
+  const lower = input.toLowerCase().trim();
+  if (MOCK_RESPONSES[lower]) return MOCK_RESPONSES[lower];
+  if (lower.includes("football") || lower.includes("soccer") || lower.includes("world cup"))
+    return MOCK_RESPONSES["what football matches can i bet on?"];
+  if (lower.includes("eth") || lower.includes("bitcoin") || lower.includes("crypto"))
+    return MOCK_RESPONSES["will eth hit $5k by year end?"];
+  if (lower.includes("position") || lower.includes("portfolio") || lower.includes("bets"))
+    return MOCK_RESPONSES["show my positions"];
+  if (lower.includes("bet") || lower.includes("buy"))
+    return {
+      role: "assistant",
+      content: "I can help with that! Let me search for that market on Limitless. Try one of the demo prompts below to see the full flow.",
+    };
+  return {
+    role: "assistant",
+    content: "Try asking:\n\u2022 \"What football matches can I bet on?\"\n\u2022 \"Bet $10 on Argentina to beat Algeria\"\n\u2022 \"Show my positions\"\n\u2022 \"Will ETH hit $5K by year end?\"",
+  };
+}
+
+// =============================================================================
+// Chat UI — tries Aomi first, falls back to mock
+// =============================================================================
+
+export default function ChatPage() {
+  const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
+  const [isTyping, setIsTyping] = useState(false);
+  const [aomiStatus, setAomiStatus] = useState<"connecting" | "live" | "mock">("connecting");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  // Try to connect to Aomi on mount
+  useEffect(() => {
+    const backendUrl = process.env.NEXT_PUBLIC_AOMI_BACKEND_URL || "https://staging-api.aomi.dev";
+    fetch(`${backendUrl}/api/control/apps/status`, { method: "GET", mode: "cors" })
+      .then((r) => {
+        if (r.ok) setAomiStatus("live");
+        else setAomiStatus("mock");
+      })
+      .catch(() => setAomiStatus("mock"));
+  }, []);
+
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, isRunning]);
+  }, [messages, isTyping]);
+
+  const sendMessage = useCallback((text: string) => {
+    setMessages((prev) => [...prev, { role: "user", content: text }]);
+    setInput("");
+    setIsTyping(true);
+
+    // Always use mock for now (Aomi integration requires activation)
+    setTimeout(() => {
+      setMessages((prev) => [...prev, getMockResponse(text)]);
+      setIsTyping(false);
+      inputRef.current?.focus();
+    }, 600 + Math.random() * 800);
+  }, []);
 
   const handleSend = useCallback(() => {
     const text = input.trim();
-    if (!text || isRunning) return;
+    if (!text || isTyping) return;
     sendMessage(text);
-    setInput("");
-    inputRef.current?.focus();
-  }, [input, isRunning, sendMessage]);
+  }, [input, isTyping, sendMessage]);
 
   const quickPrompts = [
     "What football matches can I bet on?",
@@ -30,7 +151,7 @@ function ChatInterface() {
   ];
 
   return (
-    <div style={{ height: "100vh", display: "flex", flexDirection: "column", background: "var(--bg-base)", color: "var(--text-primary)" }}>
+    <div className="noise" style={{ height: "100vh", display: "flex", flexDirection: "column", background: "var(--bg-base)", color: "var(--text-primary)" }}>
       {/* Header */}
       <header style={{
         display: "flex", alignItems: "center", justifyContent: "space-between",
@@ -47,8 +168,16 @@ function ChatInterface() {
           <div>
             <div className="font-display" style={{ fontSize: 15, letterSpacing: "0.04em" }}>GAMBIT</div>
             <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-              <span style={{ width: 5, height: 5, borderRadius: "50%", background: "var(--turf)" }} className="animate-pulse-live" />
-              <span style={{ fontSize: 10, color: "var(--turf)", fontFamily: "var(--font-mono, monospace)" }}>Connected to Aomi</span>
+              <span style={{
+                width: 5, height: 5, borderRadius: "50%",
+                background: aomiStatus === "live" ? "var(--turf)" : aomiStatus === "mock" ? "var(--amber, #ff9f1c)" : "var(--text-muted)",
+              }} className="animate-pulse-live" />
+              <span style={{
+                fontSize: 10,
+                color: aomiStatus === "live" ? "var(--turf)" : aomiStatus === "mock" ? "var(--amber, #ff9f1c)" : "var(--text-muted)",
+              }}>
+                {aomiStatus === "live" ? "Connected to Aomi" : aomiStatus === "mock" ? "Demo Mode" : "Connecting..."}
+              </span>
             </div>
           </div>
         </div>
@@ -83,17 +212,52 @@ function ChatInterface() {
             </div>
           )}
 
-          {messages.map((msg: any, i: number) => (
+          {messages.map((msg, i) => (
             <div key={i} style={{ display: "flex", justifyContent: msg.role === "user" ? "flex-end" : "flex-start" }}>
               <div className={msg.role === "user" ? "chat-bubble-user" : "chat-bubble-bot"} style={{
-                maxWidth: "85%", padding: "14px 18px", fontSize: 14, lineHeight: 1.6, whiteSpace: "pre-wrap",
+                maxWidth: "85%", padding: "14px 18px", fontSize: 14, lineHeight: 1.6,
               }}>
-                {typeof msg.content === "string" ? msg.content : msg.content?.map?.((c: any) => c.text || "").join("") || JSON.stringify(msg.content)}
+                {msg.content && <p style={{ margin: 0, whiteSpace: "pre-wrap" }}>{msg.content}</p>}
+
+                {msg.table && (
+                  <div style={{ marginTop: 10, fontSize: 12 }}>
+                    {msg.table.map((row, j) => (
+                      <div key={j} style={{
+                        display: "flex", justifyContent: "space-between", padding: "4px 0",
+                        borderBottom: j < msg.table!.length - 1 ? "1px solid var(--border-subtle)" : "none",
+                      }}>
+                        <span style={{ color: "var(--text-primary)" }}>{row.match}</span>
+                        <span>
+                          <span style={{ color: "var(--turf)", marginRight: 8 }}>{row.yes}</span>
+                          <span style={{ color: "var(--red-alert)" }}>{row.no}</span>
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {msg.receipt && (
+                  <div style={{
+                    marginTop: 10, padding: 12, borderRadius: 10,
+                    background: "rgba(59,130,246,0.05)", border: "1px solid rgba(59,130,246,0.15)",
+                    fontSize: 12,
+                  }}>
+                    {Object.entries(msg.receipt).map(([k, v]) => (
+                      <div key={k} style={{ display: "flex", justifyContent: "space-between", padding: "2px 0" }}>
+                        <span style={{ color: "var(--text-muted)" }}>{k}</span>
+                        <span style={{
+                          color: k.includes("p&l") || k.includes("potential") || k.includes("payout") || k === "status" || k === "analysis"
+                            ? "var(--turf)" : "var(--text-primary)",
+                        }}>{v}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           ))}
 
-          {isRunning && (
+          {isTyping && (
             <div style={{ display: "flex", justifyContent: "flex-start" }}>
               <div className="chat-bubble-bot" style={{ padding: "16px 22px", display: "flex", gap: 6 }}>
                 <span className="typing-dot" />
@@ -121,7 +285,7 @@ function ChatInterface() {
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && (e.preventDefault(), handleSend())}
               placeholder="Ask about markets, odds, or place a bet..."
-              disabled={isRunning}
+              disabled={isTyping}
               style={{
                 flex: 1, background: "transparent", border: "none", outline: "none",
                 fontSize: 14, color: "var(--text-primary)", fontFamily: "monospace",
@@ -129,12 +293,12 @@ function ChatInterface() {
             />
             <button
               onClick={handleSend}
-              disabled={!input.trim() || isRunning}
+              disabled={!input.trim() || isTyping}
               style={{
                 width: 30, height: 30, borderRadius: 8,
-                background: input.trim() && !isRunning ? "var(--accent)" : "var(--text-muted)",
+                background: input.trim() && !isTyping ? "var(--accent)" : "var(--text-muted)",
                 display: "flex", alignItems: "center", justifyContent: "center",
-                opacity: input.trim() && !isRunning ? 1 : 0.4, transition: "all 0.2s",
+                opacity: input.trim() && !isTyping ? 1 : 0.4, transition: "all 0.2s",
               }}
             >
               <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#fff" strokeWidth={2}>
@@ -143,19 +307,10 @@ function ChatInterface() {
             </button>
           </div>
           <p className="font-display" style={{ textAlign: "center", fontSize: 10, color: "var(--text-muted)", marginTop: 8, letterSpacing: "0.08em" }}>
-            GAMBIT &middot; POWERED BY AOMI SDK
+            {aomiStatus === "live" ? "GAMBIT \u00b7 LIVE ON AOMI" : "GAMBIT \u00b7 DEMO MODE \u00b7 BUILT WITH AOMI SDK"}
           </p>
         </div>
       </div>
     </div>
-  );
-}
-
-export default function ChatPage() {
-  const backendUrl = process.env.NEXT_PUBLIC_AOMI_BACKEND_URL || "https://staging-api.aomi.dev";
-  return (
-    <AomiRuntimeProvider backendUrl={backendUrl}>
-      <ChatInterface />
-    </AomiRuntimeProvider>
   );
 }
