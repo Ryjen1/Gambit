@@ -70,9 +70,10 @@ function WalletGate({ onConnect, connecting }: { onConnect: () => void; connecti
 }
 
 function ChatInterface({ address, onDisconnect }: { address: string; onDisconnect: () => void }) {
-  const { isRunning, sendMessage } = useAomiRuntime();
+  const { isRunning, sendMessage, currentThreadId, createThread } = useAomiRuntime();
   const messages = useCurrentThreadMessages();
   const [input, setInput] = useState("");
+  const [sendError, setSendError] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -80,13 +81,30 @@ function ChatInterface({ address, onDisconnect }: { address: string; onDisconnec
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isRunning]);
 
-  const handleSend = useCallback(() => {
+  useEffect(() => {
+    console.log("[Gambit] Aomi state:", { isRunning, currentThreadId, messageCount: messages.length });
+  }, [isRunning, currentThreadId, messages.length]);
+
+  const handleSend = useCallback(async () => {
     const text = input.trim();
     if (!text || isRunning) return;
-    sendMessage(text);
+    setSendError(null);
     setInput("");
+    try {
+      console.log("[Gambit] Sending:", text);
+      if (!currentThreadId) {
+        console.log("[Gambit] No thread, creating...");
+        const threadId = await createThread("Gambit Chat");
+        console.log("[Gambit] Thread created:", threadId);
+      }
+      await sendMessage(text);
+      console.log("[Gambit] Message sent");
+    } catch (e: any) {
+      console.error("[Gambit] Send error:", e);
+      setSendError(e?.message || "Failed to send message");
+    }
     inputRef.current?.focus();
-  }, [input, isRunning, sendMessage]);
+  }, [input, isRunning, sendMessage, currentThreadId, createThread]);
 
   const shortAddr = `${address.slice(0, 6)}...${address.slice(-4)}`;
 
@@ -111,8 +129,10 @@ function ChatInterface({ address, onDisconnect }: { address: string; onDisconnec
           <div>
             <div className="font-display" style={{ fontSize: 15, letterSpacing: "0.04em" }}>GAMBIT</div>
             <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-              <span style={{ width: 5, height: 5, borderRadius: "50%", background: "var(--turf)" }} />
-              <span style={{ fontSize: 10, color: "var(--turf)", fontFamily: "monospace" }}>{shortAddr}</span>
+              <span style={{ width: 5, height: 5, borderRadius: "50%", background: currentThreadId ? "var(--turf)" : "var(--red-alert)" }} />
+              <span style={{ fontSize: 10, color: currentThreadId ? "var(--turf)" : "var(--red-alert)", fontFamily: "monospace" }}>
+                {currentThreadId ? `Connected \u00b7 ${shortAddr}` : "Connecting to Aomi..."}
+              </span>
             </div>
           </div>
         </div>
@@ -122,6 +142,12 @@ function ChatInterface({ address, onDisconnect }: { address: string; onDisconnec
           borderRadius: 8, color: "var(--text-muted)",
         }}>DISCONNECT</button>
       </header>
+
+      {sendError && (
+        <div style={{ padding: "10px 20px", background: "rgba(255,61,87,0.1)", borderBottom: "1px solid rgba(255,61,87,0.2)", fontSize: 12, color: "var(--red-alert)" }}>
+          Error: {sendError}
+        </div>
+      )}
 
       <div style={{ flex: 1, overflow: "auto", padding: 20 }}>
         <div style={{ maxWidth: 600, margin: "0 auto", display: "flex", flexDirection: "column", gap: 12 }}>
@@ -138,7 +164,7 @@ function ChatInterface({ address, onDisconnect }: { address: string; onDisconnec
               </p>
               <div style={{ display: "flex", flexWrap: "wrap", gap: 8, justifyContent: "center" }}>
                 {quickPrompts.map((q) => (
-                  <button key={q} onClick={() => sendMessage(q)} className="font-display" style={{
+                  <button key={q} onClick={() => { setInput(q); }} className="font-display" style={{
                     fontSize: 11, letterSpacing: "0.06em", padding: "10px 18px",
                     border: "1px solid var(--border-default)", background: "rgba(14,20,32,0.5)",
                     borderRadius: 8, color: "var(--text-secondary)", backdropFilter: "blur(8px)",
