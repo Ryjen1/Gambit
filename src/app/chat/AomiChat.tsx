@@ -1,6 +1,6 @@
 "use client";
 
-import { AomiRuntimeProvider, useAomiRuntime, useCurrentThreadMessages } from "@aomi-labs/react";
+import { AomiClient, Session } from "@aomi-labs/client";
 import { useState, useRef, useEffect, useCallback } from "react";
 
 // =============================================================================
@@ -48,35 +48,78 @@ function WalletGate({ onConnect, connecting }: { onConnect: () => void; connecti
 }
 
 // =============================================================================
-// Chat — Real Aomi backend, no mock fallback
+// Message types
+// =============================================================================
+
+interface ChatMsg {
+  role: "user" | "assistant";
+  content: string;
+}
+
+// =============================================================================
+// Chat — Direct AomiClient + Session (like FanForge)
 // =============================================================================
 
 function ChatInterface({ address, onDisconnect }: { address: string; onDisconnect: () => void }) {
-  const { isRunning, sendMessage, currentThreadId, createThread } = useAomiRuntime();
-  const aomiMessages = useCurrentThreadMessages();
+  const [messages, setMessages] = useState<ChatMsg[]>([]);
   const [input, setInput] = useState("");
+  const [isRunning, setIsRunning] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const sessionRef = useRef<Session | null>(null);
 
-  useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [aomiMessages, isRunning]);
+  // Create Aomi session on mount
+  useEffect(() => {
+    const baseUrl = "/aomi"; // proxied through Next.js rewrite
+    const apiKey = process.env.NEXT_PUBLIC_AOMI_API_KEY || undefined;
+    const sessionId = crypto.randomUUID();
+
+    const session = new Session(
+      { baseUrl, apiKey },
+      { sessionId, app: "default" }
+    );
+    sessionRef.current = session;
+
+    // Listen for agent messages via SSE
+    session.on("messages", (msgs) => {
+      const agentMsgs = msgs.filter((m: any) => m.sender === "agent");
+      for (const msg of agentMsgs) {
+        const text = extractText(msg.content);
+        if (text && !messages.some(m => m.content === text)) {
+          setMessages(prev => [...prev, { role: "assistant", content: text }]);
+        }
+      }
+    });
+
+    session.on("processing_end", () => {
+      setIsRunning(false);
+    });
+
+    return () => { session.close(); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [address]);
+
+  useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages, isRunning]);
 
   const handleSend = useCallback(async () => {
     const text = input.trim();
-    if (!text || isRunning) return;
+    if (!text || isRunning || !sessionRef.current) return;
     setInput("");
     setError(null);
+    setMessages(prev => [...prev, { role: "user", content: text }]);
+    setIsRunning(true);
 
     try {
-      if (!currentThreadId) await createThread();
-      await sendMessage(text);
+      await sessionRef.current.send(text);
+      setIsRunning(false);
     } catch (e: any) {
       console.error("[Gambit] Error:", e);
-      const msg = e?.message || "Failed to send message. Check your connection and API key.";
-      setError(msg);
+      setError(e?.message || "Failed to send message.");
+      setIsRunning(false);
     }
     inputRef.current?.focus();
-  }, [input, isRunning, sendMessage, currentThreadId, createThread]);
+  }, [input, isRunning]);
 
   const shortAddr = `${address.slice(0, 6)}...${address.slice(-4)}`;
   const quickPrompts = ["What football matches can I bet on?", "Bet $10 on Argentina to beat Algeria", "Show my positions", "Will ETH hit $5K by year end?"];
@@ -103,7 +146,7 @@ function ChatInterface({ address, onDisconnect }: { address: string; onDisconnec
 
       <div style={{ flex: 1, overflow: "auto", padding: 20 }}>
         <div style={{ maxWidth: 600, margin: "0 auto", display: "flex", flexDirection: "column", gap: 12 }}>
-          {aomiMessages.length === 0 && !error && (
+          {messages.length === 0 && !error && (
             <div style={{ padding: "60px 0", textAlign: "center" }}>
               <div style={{ fontSize: 48, marginBottom: 12 }}>{"\u26bd"}</div>
               <p className="font-display" style={{ fontSize: 11, letterSpacing: "0.12em", color: "var(--text-muted)", marginBottom: 16 }}>AI PREDICTION MARKETS</p>
@@ -121,14 +164,13 @@ function ChatInterface({ address, onDisconnect }: { address: string; onDisconnec
             <div style={{ padding: 16, borderRadius: 12, background: "rgba(255,61,87,0.08)", border: "1px solid rgba(255,61,87,0.2)", fontSize: 13, color: "var(--red-alert)" }}>
               <p style={{ margin: 0, fontWeight: 600, marginBottom: 4 }}>Connection Error</p>
               <p style={{ margin: 0, opacity: 0.8 }}>{error}</p>
-              <p style={{ margin: "8px 0 0", fontSize: 11, opacity: 0.6 }}>Make sure NEXT_PUBLIC_AOMI_API_KEY is set in .env.local</p>
             </div>
           )}
 
-          {aomiMessages.map((msg: any, i: number) => (
+          {messages.map((msg, i) => (
             <div key={i} style={{ display: "flex", justifyContent: msg.role === "user" ? "flex-end" : "flex-start" }}>
               <div className={msg.role === "user" ? "chat-bubble-user" : "chat-bubble-bot"} style={{ maxWidth: "85%", padding: "14px 18px", fontSize: 14, lineHeight: 1.6 }}>
-                {msg.content && <p style={{ margin: 0, whiteSpace: "pre-wrap" }}>{typeof msg.content === "string" ? msg.content : JSON.stringify(msg.content)}</p>}
+                <p style={{ margin: 0, whiteSpace: "pre-wrap" }}>{msg.content}</p>
               </div>
             </div>
           ))}
@@ -154,27 +196,33 @@ function ChatInterface({ address, onDisconnect }: { address: string; onDisconnec
 }
 
 // =============================================================================
-// Root — Wire up AomiRuntimeProvider with real config
+// Helpers
+// =============================================================================
+
+function extractText(content: unknown): string {
+  if (typeof content === "string") {
+    try { return extractText(JSON.parse(content)); } catch { return content.trim(); }
+  }
+  if (Array.isArray(content)) {
+    return content.map(p => (typeof p === "object" && p !== null && "text" in p) ? String((p as any).text) : extractText(p)).join("\n").trim();
+  }
+  if (typeof content === "object" && content !== null) {
+    const obj = content as Record<string, unknown>;
+    if (typeof obj.message === "string") return obj.message.trim();
+    if (typeof obj.text === "string") return obj.text.trim();
+    if (typeof obj.summary === "string") return obj.summary.trim();
+    const { source: _, ...rest } = obj;
+    return JSON.stringify(rest, null, 2);
+  }
+  return String(content);
+}
+
+// =============================================================================
+// Root
 // =============================================================================
 
 export default function AomiChat() {
   const { address, connecting, connect, disconnect } = useWallet();
-  // Use the Next.js rewrite proxy to avoid CORS issues with api.aomi.dev.
-  // Browser hits /aomi/* → Next.js proxies to the real Aomi backend server-side.
-  const backendUrl = "/aomi";
-  const apiKey = process.env.NEXT_PUBLIC_AOMI_API_KEY || undefined;
-
   if (!address) return <WalletGate onConnect={connect} connecting={connecting} />;
-
-  // Pass apiKey when available — the backend routes to the "gambit" plugin.
-  // Without an API key, the backend uses the "default" app which has basic
-  // Limitless tools but not the 6 custom Gambit intelligence tools.
-  return (
-    <AomiRuntimeProvider
-      backendUrl={backendUrl}
-      clientOptions={apiKey ? { apiKey } : undefined}
-    >
-      <ChatInterface address={address} onDisconnect={disconnect} />
-    </AomiRuntimeProvider>
-  );
+  return <ChatInterface address={address} onDisconnect={disconnect} />;
 }
