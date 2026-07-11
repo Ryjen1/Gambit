@@ -75,9 +75,14 @@ function ChatInterface({ address, onDisconnect }: { address: string; onDisconnec
     const apiKey = process.env.NEXT_PUBLIC_AOMI_API_KEY || undefined;
     const sessionId = crypto.randomUUID();
 
+    const userState = {
+      connection: { is_connected: true, auth_method: "wagmi" as const, auth_value: address },
+      evm: { address, chain_id: 8453 },
+    };
+
     const session = new Session(
       { baseUrl, apiKey },
-      { sessionId, app: "default", publicKey: address }
+      { sessionId, app: "default", userState }
     );
     sessionRef.current = session;
 
