@@ -77,7 +77,7 @@ function ChatInterface({ address, onDisconnect }: { address: string; onDisconnec
 
     const session = new Session(
       { baseUrl, apiKey },
-      { sessionId, app: "default" }
+      { sessionId, app: "default", publicKey: address }
     );
     sessionRef.current = session;
 
