@@ -159,7 +159,9 @@ function ChatInterface({ address, onDisconnect }: { address: string; onDisconnec
 
 export default function AomiChat() {
   const { address, connecting, connect, disconnect } = useWallet();
-  const backendUrl = process.env.NEXT_PUBLIC_AOMI_BACKEND_URL || "https://api.aomi.dev";
+  // Use the Next.js rewrite proxy to avoid CORS issues with api.aomi.dev.
+  // Browser hits /aomi/* → Next.js proxies to the real Aomi backend server-side.
+  const backendUrl = "/aomi";
   const apiKey = process.env.NEXT_PUBLIC_AOMI_API_KEY || undefined;
 
   if (!address) return <WalletGate onConnect={connect} connecting={connecting} />;
