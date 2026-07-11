@@ -9,7 +9,8 @@
     "start": "next start"
   },
   "dependencies": {
-    "@aomi-labs/react": "^0.3.21",
+    "@aomi-labs/client": "^0.4.0",
+    "@aomi-labs/react": "^0.5.1",
     "@assistant-ui/react": "^0.11.58",
     "@heroicons/react": "^2.2.0",
     "@privy-io/react-auth": "^3.28.0",
