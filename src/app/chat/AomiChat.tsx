@@ -86,21 +86,6 @@ function ChatInterface({ address, onDisconnect }: { address: string; onDisconnec
     );
     sessionRef.current = session;
 
-    // Listen for agent messages via SSE
-    session.on("messages", (msgs) => {
-      const agentMsgs = msgs.filter((m: any) => m.sender === "agent");
-      for (const msg of agentMsgs) {
-        const text = extractText(msg.content);
-        if (text && !messages.some(m => m.content === text)) {
-          setMessages(prev => [...prev, { role: "assistant", content: text }]);
-        }
-      }
-    });
-
-    session.on("processing_end", () => {
-      setIsRunning(false);
-    });
-
     return () => { session.close(); };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [address]);
@@ -116,7 +101,17 @@ function ChatInterface({ address, onDisconnect }: { address: string; onDisconnec
     setIsRunning(true);
 
     try {
-      await sessionRef.current.send(text);
+      const result = await sessionRef.current.send(text);
+      // result.messages contains the full conversation after processing
+      const agentMsgs = (result.messages || [])
+        .filter((m: any) => m.sender === "agent")
+        .map((m: any) => ({ role: "assistant" as const, content: extractText(m.content) }))
+        .filter((m) => m.content.length > 0);
+      // Keep user messages already in state, replace with final agent messages
+      setMessages(prev => {
+        const users = prev.filter(m => m.role === "user");
+        return [...users, ...agentMsgs];
+      });
       setIsRunning(false);
     } catch (e: any) {
       console.error("[Gambit] Error:", e);
