@@ -101,17 +101,19 @@ function ChatInterface({ address, onDisconnect }: { address: string; onDisconnec
     setIsRunning(true);
 
     try {
+      const prevCount = messages.length;
       const result = await sessionRef.current.send(text);
-      // result.messages contains the full conversation after processing
-      const agentMsgs = (result.messages || [])
+      const allMsgs = result.messages || [];
+      // Only take messages that are new (index >= prevCount)
+      const newMsgs = allMsgs.slice(prevCount);
+      const agentReply = newMsgs
         .filter((m: any) => m.sender === "agent")
-        .map((m: any) => ({ role: "assistant" as const, content: extractText(m.content) }))
-        .filter((m) => m.content.length > 0);
-      // Keep user messages already in state, replace with final agent messages
-      setMessages(prev => {
-        const users = prev.filter(m => m.role === "user");
-        return [...users, ...agentMsgs];
-      });
+        .map((m: any) => extractText(m.content))
+        .filter((t: string) => t.length > 0)
+        .pop(); // last agent message
+      if (agentReply) {
+        setMessages(prev => [...prev, { role: "assistant", content: agentReply }]);
+      }
       setIsRunning(false);
     } catch (e: any) {
       console.error("[Gambit] Error:", e);
